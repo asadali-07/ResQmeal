@@ -29,4 +29,6 @@ const ngoSchema = new mongoose.Schema({
 
 ngoSchema.index({ location: "2dsphere" });
 
-module.exports = mongoose.model("NGO", ngoSchema);
+const ngoModel = mongoose.model('ngos',ngoSchema)
+
+module.exports = ngoModel
