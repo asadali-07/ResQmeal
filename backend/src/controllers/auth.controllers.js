@@ -65,7 +65,7 @@ async function loginController(req, res) {
                 message: "Invalid credentials"
             })
         }
-        const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET, expireIn = "7d")
+        const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {expiresIn : "7d"})
         res.cookie = ('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production" ? true : false,
