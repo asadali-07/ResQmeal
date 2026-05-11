@@ -10,5 +10,6 @@ foodRouter.post('/create',createAuthMiddleware(["restaurant"]),upload.single("fo
 foodRouter.post('/update/:foodId',createAuthMiddleware(["restaurant"]),upload.single("foodImage"),updateFood)
 foodRouter.get('/available',createAuthMiddleware(["ngo", "volunteer"]),getAvailableFood)
 foodRouter.get('/:foodId',createAuthMiddleware(["ngo", "volunteer"]),getFoodById)
+foodRouter.patch('/claim/:foodId',createAuthMiddleware(["ngo"]),claimFood)
 
 module.exports = foodRouter;
