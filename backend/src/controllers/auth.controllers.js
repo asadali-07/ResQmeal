@@ -35,7 +35,7 @@ async function registerController(req, res) {
 
         return res.status(201).json({
             message: "Registered the user Successfully",
-            user : {
+            user: {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
@@ -50,7 +50,7 @@ async function registerController(req, res) {
 async function loginController(req, res) {
     try {
         const { email, password } = req.body
-        if(!email || !password) {
+        if (!email || !password) {
             return res.status(400).json({ message: "All fields are required" })
         }
         const user = await userModel.findOne({ email })
@@ -73,8 +73,8 @@ async function loginController(req, res) {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
         return res.status(200).json({
-            message :"LoggedIn Sucessfully",
-            user : {
+            message: "LoggedIn Sucessfully",
+            user: {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
@@ -86,6 +86,42 @@ async function loginController(req, res) {
     }
 }
 
+async function logoutController(req, res) {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" ? true : false,
+            sameSite: "strict",
+        })
+        return res.status(200).json({ message: "Logged out successfully" })
+    } catch (error) {
+        return res.status(500).json({ message: "Could not LogOut", error: error.message })
+    }
+}
+
+async function verifyController ( req,res){
+    try {
+        const user = req.user
+        return res.status(200).json({
+            message : "User verified Successfully",
+            user : {
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role
+            }
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message : "Internal Server Error",
+            error:
+            error.message
+        })
+    }
+}
+
+
+
 module.exports = {
-    registerController,loginController
+    registerController, loginController, logoutController, verifyController
 }
