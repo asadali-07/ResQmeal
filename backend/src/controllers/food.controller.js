@@ -1,6 +1,5 @@
 const ngoModel = require("../models/ngo.model");
 const restaurantModel = require("../models/restaurant.model");
-const { populate } = require("../models/user.model");
 const { uploadImage } = require("../services/imagekit.service");
 
 
@@ -134,63 +133,102 @@ async function getFoodById(req, res) {
 
 async function deleteFood(req, res) {
     try {
-        const restaurant = await restaurantModel.findOne({ userId: req.user.id });
+        const restaurant = await restaurantModel.findOne({ 
+            userId: req.user.id 
+        });
+
         const { foodId } = req.params;
+
         if (!restaurant) {
-            return res.status(404).json({ message: "Restaurant not found" });
+            return res.status(404).json({ 
+                message: "Restaurant not found" 
+            });
         }
-        const food = await foodModel.findOne({ _id: foodId, restaurantId: restaurant._id });
+
+        const food = await foodModel.findOne({
+            _id: foodId,
+            restaurantId: restaurant._id
+        });
 
         if (!food) {
-            return res.status(404).json({ message: "Food not found" });
+            return res.status(404).json({ 
+                message: "Food not found" 
+            });
         }
+
         if (food.status !== "available") {
-            return res.status(400).json({ message: "Only available food can be deleted" })
+            return res.status(400).json({
+                message: "Only available food can be deleted"
+            });
         }
-        await food.remove();
+
+        await food.deleteOne();
+
         return res.status(200).json({
             message: "Food deleted successfully"
-        })
+        });
+
     } catch (error) {
         return res.status(500).json({
             message: "Error in deleting the food",
             error: error.message
-        })
+        });
     }
 }
 
 async function claimFood(req, res) {
     try {
-        const user = req.uaer
+        const user = req.user;
+
         const { foodId } = req.params;
+
         const food = await foodModel.findById(foodId);
-        const ngo = await ngoModel.findOne({ userId: req.user.id })
+
+        const ngo = await ngoModel.findOne({
+            userId: req.user.id
+        });
+
         if (!ngo) {
-            return res.status(404).json({ message: "NGO not found" })
+            return res.status(404).json({
+                message: "NGO not found"
+            });
         }
+
         if (!food) {
-            return res.status(404).json({ message: "Food not found" });
+            return res.status(404).json({
+                message: "Food not found"
+            });
         }
+
         if (food.status !== "available") {
-            return res.status(400).json({ message: "Food is not available for claiming" });
+            return res.status(400).json({
+                message: "Food is not available for claiming"
+            });
         }
+
         food.status = "claimed";
         food.claimedBy = ngo._id;
+
         await food.save();
-        food.populate({path :"claimedBy", populate:{
-            path : 'userId',
-            select : "name profileImage address"
-        }})
+
+        await food.populate({
+            path: "claimedBy",
+            populate: {
+                path: "userId",
+                select: "name profileImage address"
+            }
+        });
+
         return res.status(200).json({
             message: "Food claimed successfully",
             food
-        })
-    }
-    catch (error) {
+        });
+
+    } catch (error) {
         return res.status(500).json({
             message: "Error in claiming the food",
             error: error.message
-        })
+        });
     }
 }
 
