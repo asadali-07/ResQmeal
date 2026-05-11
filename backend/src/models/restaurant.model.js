@@ -29,4 +29,6 @@ const restaurantSchema = new mongoose.Schema({
 
 restaurantSchema.index({ location: "2dsphere" });
 
-module.exports = mongoose.model("Restaurant", restaurantSchema);
+const restaurantModel = mongoose.model("restaurants",restaurantSchema)
+
+module.exports = restaurantModel
