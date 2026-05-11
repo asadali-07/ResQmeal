@@ -1,5 +1,6 @@
 const ngoModel = require("../models/ngo.model");
 const restaurantModel = require("../models/restaurant.model");
+const { populate } = require("../models/user.model");
 const { uploadImage } = require("../services/imagekit.service");
 
 
@@ -176,6 +177,10 @@ async function claimFood(req, res) {
         food.status = "claimed";
         food.claimedBy = ngo._id;
         await food.save();
+        food.populate("claimedBy", populate{
+            path : 'userId',
+            select : "name profileImage address"
+        })
         return res.status(200).json({
             message: "Food claimed successfully",
             food
