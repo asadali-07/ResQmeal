@@ -3,9 +3,10 @@ const { registerController, loginController,logoutController,getUserController, 
 const {createAuthMiddleware} = require('../middlewares/auth.middleware')
 const multer = require("multer");
 const { get } = require('mongoose');
+const { upload } = require('../middlewares/multer.middleware');
 
 
-const upload = multer({memoryStorage: multer.memoryStorage()})  
+
 
 
 const authRouter = express.Router();
