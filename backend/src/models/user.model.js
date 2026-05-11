@@ -37,13 +37,15 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
-    profileImage: String,
-
-    lastActive: Date,
+    profileImage: {
+      url: String,
+      thumbnail: String,
+      fileId: String
+    }
   },
   { timestamps: true }
 );
 
-const userModel = mongoose.model('users',userSchema)
+const userModel = mongoose.model('users', userSchema)
 
 module.exports = userModel

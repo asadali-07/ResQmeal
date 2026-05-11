@@ -1,7 +1,8 @@
-const e = require("express")
 const userModel = require("../models/user.model")
 const jwt = require('jsonwebtoken')
-
+const { uploadImage } = require("../services/imagekit.service")
+const { sendEmail } = require("../services/email.service")
+const { redis } = require("../db/redis")
 
 
 async function registerController(req, res) {
@@ -102,6 +103,63 @@ async function loginController(req, res) {
     }
 }
 
+async function updateProfileController(req, res) {
+    try {
+        const { name, phone, profileImage } = req.body
+        const user = await userModel.findOne({ _id: req.user.id })
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+        if (profileImage) {
+            const image = await uploadImage({ buffer: profileImage.buffer });
+            user.profileImage = image;
+        }
+        user.name = name || user.name
+        user.phone = phone || user.phone
+
+        await user.save();
+        return res.status(200).json({
+            message: "Profile updated successfully",
+            user
+        })
+    } catch (error) {
+        res.status(500).json({ message: "Error in updating the profile", error: error.message })
+    }
+}
+
+async function sendOTPController(req, res) {
+    try {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        await redis.setex(req.user.email, 300, otp)
+        await sendEmail(req.user.email, "OTP for email verification", `Your OTP for email verification is ${otp}`)
+        return res.status(200).json({
+            message: "OTP sent to the registered email address"
+        })
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error in sending OTP", error: error.message })
+    }
+}
+
+async function verifyOTPController(req, res) {
+    try {
+        const { otp } = req.body;
+        const storedOTP = await redis.get(req.user.email)
+        if (storedOTP === otp) {
+            await userModel.findByIdAndUpdate(req.user.id, { isEmailVerified: true })
+            await redis.del(req.user.email)
+            return res.status(200).json({
+                message: "Email verified successfully"
+            })
+        } else {
+            return res.status(400).json({
+                message: "Invalid OTP"
+            })
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Error in verifying OTP", error: error.message })
+    }
+}
 
 async function logoutController(req, res) {
     try {
@@ -120,10 +178,11 @@ async function logoutController(req, res) {
 
 async function getUserController(req, res) {
     try {
-        const user = await userModel.findById(req.user.id).select("-password")  
+        const user = await userModel.findById(req.user.id).select("-password")
         if (!user) {
             return res.status(404).json({ message: "User not found" })
         }
+
         return res.status(200).json({
             message: "User fetched successfully",
             user
@@ -135,5 +194,5 @@ async function getUserController(req, res) {
 
 
 module.exports = {
-    registerController, loginController, logoutController, getUserController    
+    registerController, loginController, logoutController, getUserController, updateProfileController, sendOTPController, verifyOTPController
 }
