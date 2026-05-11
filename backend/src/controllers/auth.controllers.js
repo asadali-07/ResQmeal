@@ -105,14 +105,15 @@ async function loginController(req, res) {
 
 async function updateProfileController(req, res) {
     try {
-        const { name, phone, profileImage } = req.body
+        const { name, phone } = req.body
         const user = await userModel.findOne({ _id: req.user.id })
         if (!user) {
             return res.status(404).json({ message: "User not found" })
         }
-        if (profileImage) {
+       
+        if (req.file) {
             const image = await uploadImage({ buffer: profileImage.buffer });
-            user.profileImage = image;
+            user.profileImage = image.url;
         }
         user.name = name || user.name
         user.phone = phone || user.phone
