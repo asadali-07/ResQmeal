@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerController, loginController,logoutController,getUserController, updateProfileController, sendOTPController, verifyOTPController} = require('../controllers/auth.controllers');
+const { registerController, loginController,logoutController,getUserController, updateProfileController, sendOTPController, verifyOTPController} = require('../controllers/auth.controller');
 const {createAuthMiddleware} = require('../middlewares/auth.middleware')
 const multer = require("multer");
 const { get } = require('mongoose');

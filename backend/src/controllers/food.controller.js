@@ -232,4 +232,4 @@ async function claimFood(req, res) {
     }
 }
 
-module.exports = { createFood, updateFood, getAvailableFood, getFoodById }
+module.exports = { createFood, updateFood, getAvailableFood, getFoodById, deleteFood, claimFood };

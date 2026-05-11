@@ -1,6 +1,6 @@
 const express = require('express');
 const {createAuthMiddleware} = require('../middlewares/auth.middleware');
-const {createRestaurant, getAllRestaurants, getRestaurantByUserId, updateRestaurant} = require('../controllers/restaurant.controllers');
+const {createRestaurant, getAllRestaurants, getRestaurantByUserId, updateRestaurant} = require('../controllers/restaurant.controller');
 
 
 const restaurantRouter = express.Router();

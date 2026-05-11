@@ -1,4 +1,4 @@
-const restaurantSchema = require('../schemas/restaurant.schema');
+const restaurantSchema = require('../models/restaurant.model');
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
 
