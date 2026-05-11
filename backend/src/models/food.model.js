@@ -32,8 +32,12 @@ const foodSchema = new mongoose.Schema({
         type: String,
         enum: ["available", "claimed", "expired"],
         default: "available"
+    },
+    claimedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ngos",
+        default: null
     }
-
 
 }, { timestamps: true })
 

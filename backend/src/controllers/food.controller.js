@@ -1,4 +1,6 @@
+const ngoModel = require("../models/ngo.model");
 const restaurantModel = require("../models/restaurant.model");
+const { populate } = require("../models/user.model");
 const { uploadImage } = require("../services/imagekit.service");
 
 
@@ -9,13 +11,13 @@ async function createFood(req, res) {
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
         }
-        const { name,description,quantity,expiryTime,pickupTime } = req.body;
-        if(!name || !description || !quantity || !expiryTime || !pickupTime){
-            return res.status(400).json({message : "All fields are required"})
+        const { name, description, quantity, expiryTime, pickupTime } = req.body;
+        if (!name || !description || !quantity || !expiryTime || !pickupTime) {
+            return res.status(400).json({ message: "All fields are required" })
         }
 
-        if(!req.file){
-            return res.status(400).json({message : "Food image is required"})
+        if (!req.file) {
+            return res.status(400).json({ message: "Food image is required" })
         }
 
         const foodImage = await uploadImage({ buffer: req.file.buffer });
@@ -54,17 +56,17 @@ async function updateFood(req, res) {
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }
-        if(food.status !== "available"){
-            return res.status(400).json({message : "Only available food can be updated"})
+        if (food.status !== "available") {
+            return res.status(400).json({ message: "Only available food can be updated" })
         }
-        const { name,description,quantity,expiryTime,pickupTime } = req.body;
+        const { name, description, quantity, expiryTime, pickupTime } = req.body;
 
         food.name = name || food.name;
         food.description = description || food.description;
         food.quantity = quantity || food.quantity;
         food.expiryTime = expiryTime || food.expiryTime;
         food.pickupTime = pickupTime || food.pickupTime;
-        if(req.file){
+        if (req.file) {
             const foodImage = await uploadImage({ buffer: req.file.buffer });
             food.foodImage = foodImage;
         }
@@ -86,7 +88,7 @@ async function getAvailableFood(req, res) {
         const { longitude, latitude } = req.query;
         if (!longitude || !latitude) {
             return res.status(400).json({ message: "Longitude and latitude are required" });
-        }  
+        }
         const foods = await foodModel.find({
             status: "available",
             location: {
@@ -108,7 +110,7 @@ async function getAvailableFood(req, res) {
             message: "Error in fetching available food",
             error: error.message
         })
-    }  
+    }
 }
 
 async function getFoodById(req, res) {
@@ -127,32 +129,69 @@ async function getFoodById(req, res) {
             message: "Error in fetching the food",
             error: error.message
         })
-    }}
+    }
+}
 
-    async function deleteFood(req, res) {
-        try {
-            const restaurant = await restaurantModel.findOne({ userId: req.user.id });
-            const { foodId } = req.params;
-            if (!restaurant) {
-                return res.status(404).json({ message: "Restaurant not found" });
-            }   
-            const food = await foodModel.findOne({ _id: foodId, restaurantId: restaurant._id });
-            
-            if (!food) {
-                return res.status(404).json({ message: "Food not found" });
-            }
-            if(food.status !== "available"){
-                return res.status(400).json({message : "Only available food can be deleted"})
-            }
-            await food.remove();
-            return res.status(200).json({
-                message: "Food deleted successfully"
-            })
-        } catch (error) {
-            return res.status(500).json({
-                message: "Error in deleting the food",
-                error: error.message
-            })
-        }}
+async function deleteFood(req, res) {
+    try {
+        const restaurant = await restaurantModel.findOne({ userId: req.user.id });
+        const { foodId } = req.params;
+        if (!restaurant) {
+            return res.status(404).json({ message: "Restaurant not found" });
+        }
+        const food = await foodModel.findOne({ _id: foodId, restaurantId: restaurant._id });
 
-module.exports = { createFood, updateFood,getAvailableFood ,getFoodById}
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+        if (food.status !== "available") {
+            return res.status(400).json({ message: "Only available food can be deleted" })
+        }
+        await food.remove();
+        return res.status(200).json({
+            message: "Food deleted successfully"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Error in deleting the food",
+            error: error.message
+        })
+    }
+}
+
+async function claimFood(req, res) {
+    try {
+        const user = req.uaer
+        const { foodId } = req.params;
+        const food = await foodModel.findById(foodId);
+        const ngo = await ngoModel.findOne({ userId: req.user.id })
+        if (!ngo) {
+            return res.status(404).json({ message: "NGO not found" })
+        }
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+        if (food.status !== "available") {
+            return res.status(400).json({ message: "Food is not available for claiming" });
+        }
+        food.status = "claimed";
+        food.claimedBy = ngo._id;
+        await food.save();
+        food.populate("claimedBy", populate{
+            path : 'userId',
+            select : "name profileImage address"
+        })
+        return res.status(200).json({
+            message: "Food claimed successfully",
+            food
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            message: "Error in claiming the food",
+            error: error.message
+        })
+    }
+}
+
+module.exports = { createFood, updateFood, getAvailableFood, getFoodById }
