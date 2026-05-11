@@ -26,7 +26,7 @@ async function createFood(req, res) {
             quantity,
             expiryTime,
             pickupTime,
-            foodImage: foodImage.url,
+            foodImage,
             location: restaurant.location
         })
         return res.status(201).json({
@@ -66,7 +66,7 @@ async function updateFood(req, res) {
         food.pickupTime = pickupTime || food.pickupTime;
         if(req.file){
             const foodImage = await uploadImage({ buffer: req.file.buffer });
-            food.foodImage = foodImage.url;
+            food.foodImage = foodImage;
         }
         await food.save();
         return res.status(200).json({

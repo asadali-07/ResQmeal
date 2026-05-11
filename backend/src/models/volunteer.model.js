@@ -9,10 +9,14 @@ const volunteerSchema = new mongoose.Schema({
 
   currentLocation: {
     type: {
-      type: String,
-      default: "Point",
-    },
-    coordinates: [Number],
+        type: String, 
+        enum: ['Point'], 
+        required: true
+      },
+      coordinates: {
+        type: [Number],
+        required: true
+      }
   },
 
   isAvailable: {
@@ -20,7 +24,11 @@ const volunteerSchema = new mongoose.Schema({
       default: true,
   },
 
-  vehicleType: String,
+  vehicleType: {
+    type: String,
+    enum: ["bike", "car", "van"],
+    required: true,
+  },
 
   totalDeliveries: {
     type: Number,

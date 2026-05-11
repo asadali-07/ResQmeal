@@ -112,8 +112,8 @@ async function updateProfileController(req, res) {
         }
        
         if (req.file) {
-            const image = await uploadImage({ buffer: profileImage.buffer });
-            user.profileImage = image.url;
+            const profileImage= await uploadImage({ buffer: req.file.buffer });
+            user.profileImage = profileImage;
         }
         user.name = name || user.name
         user.phone = phone || user.phone

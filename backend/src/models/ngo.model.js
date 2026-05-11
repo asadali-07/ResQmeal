@@ -7,14 +7,30 @@ const ngoSchema = new mongoose.Schema({
     required: true,
   },
 
-  address: Object,
+  address: {
+    street: String,
+    area: String,
+    landmark: String,
+    city: String,
+    state: String,
+    pincode: String,
+    country: {
+      type: String,
+      default: "India",
+    },
+    formattedAddress: String,
+  },
 
   location: {
     type: {
-      type: String,
-      default: "Point",
-    },
-    coordinates: [Number],
+        type: String, 
+        enum: ['Point'], 
+        required: true
+      },
+      coordinates: {
+        type: [Number],
+        required: true
+      }
   },
 
   registrationNumber: String,

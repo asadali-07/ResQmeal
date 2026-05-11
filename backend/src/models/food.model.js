@@ -11,13 +11,21 @@ const foodSchema = new mongoose.Schema({
     quantity: Number,
     expiryTime: Date,
     pickupTime: Date,
-    foodImage: String,
+    foodImage: {
+        url: String,
+        thumbnail: String,
+        fileId: String
+    },
     location: {
         type: {
             type: String,
-            default: "Point",
+            enum: ['Point'],
+            required: true
         },
-        coordinates: [Number], // [lng, lat]
+        coordinates: {
+            type: [Number],
+            required: true
+        }
     },
 
     status: {
