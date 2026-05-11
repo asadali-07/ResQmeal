@@ -1,6 +1,5 @@
 const ngoModel = require("../models/ngo.model");
 const restaurantModel = require("../models/restaurant.model");
-const { populate } = require("../models/user.model");
 const { uploadImage } = require("../services/imagekit.service");
 
 
