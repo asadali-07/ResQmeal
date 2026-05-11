@@ -160,6 +160,7 @@ async function deleteFood(req, res) {
 
 async function claimFood(req, res) {
     try {
+        const user = req.uaer
         const { foodId } = req.params;
         const food = await foodModel.findById(foodId);
         const ngo = await ngoModel.findOne({ userId: req.user.id })
@@ -175,7 +176,6 @@ async function claimFood(req, res) {
         food.status = "claimed";
         food.claimedBy = ngo._id;
         await food.save();
-        await food.populate({ path: "claimedBy", select: "name address profileImage" })
         return res.status(200).json({
             message: "Food claimed successfully",
             food
