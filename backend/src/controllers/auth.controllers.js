@@ -120,7 +120,14 @@ async function updateProfileController(req, res) {
         await user.save();
         return res.status(200).json({
             message: "Profile updated successfully",
-            user
+            user: {
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role : user.role,
+                profileImage: user.profileImage
+            }
+
         })
     } catch (error) {
         res.status(500).json({ message: "Error in updating the profile", error: error.message })
