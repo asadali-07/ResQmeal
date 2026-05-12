@@ -1,5 +1,6 @@
 const messageModel = require("../models/message.model")
 const { uploadImage } = require("../services/imagekit.service")
+const { getUserSocketId, io } = require("../socket/socket")
 
 
 async function sendMessage(req, res) {
@@ -13,7 +14,7 @@ async function sendMessage(req, res) {
             imageUrl = response.url
         }
 
-        const message = await messageModel.create({
+        const newMessage = await messageModel.create({
             senderId : user.id,
             receiverId : userId,
             text,
@@ -21,9 +22,14 @@ async function sendMessage(req, res) {
 
         })
 
+        let receiverSocketId = getUserSocketId(userId)
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage", newMessage) 
+        }
+
         return res.status(200).json({
             message : "Sent the message successfully",
-            message
+            messageData : newMessage
         })
 
     } catch (error) {

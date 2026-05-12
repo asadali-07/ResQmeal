@@ -1,0 +1,38 @@
+const { Server } = require('socket.io')
+const http = require('http')
+const express = require('express')
+const app = express()
+const server = http.createServer(app)
+
+let io = new Server(server, {
+    cors: {
+        origin: '*',
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+    }
+})
+
+let userSocketMap = {}
+
+function getUserSocketId(userId) {
+    return userSocketMap[userId]
+}
+
+io.on('connection', (socket) => {
+    console.log("A user connected to Server", socket.id)
+    const { userId } = socket.handshake.auth
+
+    if (userId) {
+        userSocketMap[userId] = socket.id
+    }
+
+    io.emit('getOnlineUsers', Object.keys(userSocketMap))
+    socket.on('disconnect', () => {
+        console.log("A user disconnected from Server", socket.id)
+        delete userSocketMap[userId]
+
+})
+})
+
+
+module.exports = { app, io, server, getUserSocketId }
