@@ -1,6 +1,6 @@
 const express = require('express');
 const {createAuthMiddleware} = require('../middlewares/auth.middleware');
-const { createVolunteer, getAllVolunteers, getVolunteerByUserId, updateVolunteer, getAllAvailableVolunteers } = require('../controllers/volunteer.controllers');
+const { createVolunteer, getAllVolunteers, getVolunteerByUserId, updateVolunteer, getAllAvailableVolunteers, deleteVolunteer } = require('../controllers/volunteer.controller');
 
 
 const volunteerRouter = express.Router();

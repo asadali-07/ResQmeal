@@ -1,6 +1,7 @@
 const express = require('express');
 const { sendMessage, getMessages, updatedMessage, deleteMessage } = require('../controllers/message.controller');
 const { upload } = require('../middlewares/multer.middleware');
+const { createAuthMiddleware } = require('../middlewares/auth.middleware');
 
 
 
