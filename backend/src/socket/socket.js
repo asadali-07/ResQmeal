@@ -27,11 +27,34 @@ io.on('connection', (socket) => {
     }
 
     io.emit('getOnlineUsers', Object.keys(userSocketMap))
+
+    socket.on("join-room", (foodId) => {
+        socket.join(foodId);
+
+        console.log(`Joined room: ${foodId}`);
+    });
+
+    socket.on("send-location", (data) => {
+
+        const { foodId, lat, lng, userId } = data;
+
+        io.to(foodId).emit("receive-location", {
+            userId,
+            lat,
+            lng
+        });
+
+    });
+
+    socket.on("leave-room", (foodId) => {
+        socket.leave(foodId);
+    })
+
     socket.on('disconnect', () => {
         console.log("A user disconnected from Server", socket.id)
         delete userSocketMap[userId]
 
-})
+    })
 })
 
 
