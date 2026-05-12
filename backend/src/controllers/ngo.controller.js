@@ -5,11 +5,14 @@ const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
 
 async function createNgo(req, res) {
     try {
-        const { userId, address, registrationNumber, capacity } = req.body;
-        if (!userId || !address || !registrationNumber || !capacity) {
+        const { address, registrationNumber, capacity } = req.body;
+        if(req.user.isVerified === false){
+            return res.status(403).json({ message: "Please verify your email address before creating an ngo" });
+        }
+        if (!address || !registrationNumber || !capacity) {
             return res.status(400).json({ message: "All fields are required" });
         }
-        const existingNgo = await ngoModel.findOne({ userId });
+        const existingNgo = await ngoModel.findOne({ userId: req.user.id });
         if (existingNgo) {
             return res.status(400).json({ message: "Ngo already exists for this user" });
         }
@@ -21,7 +24,7 @@ async function createNgo(req, res) {
             })
             .send();
         const newNgo = await ngoModel.create({
-            userId,
+            userId: req.user.id,
             address: { ...address, formattedAddress },
             location: response.body.features[0].geometry,
             registrationNumber,
@@ -46,10 +49,9 @@ async function getAllNgos(req, res) {
     }
 }
 
-async function getNgoByUserId(req, res) {
+async function getUserNgo(req, res) {
     try {
-        const { userId } = req.params;
-        const ngo = await ngoModel.findOne({ userId });
+        const ngo = await ngoModel.findOne({ userId: req.user.id });
         if (!ngo) {
             return res.status(404).json({ message: "Ngo not found" });
         }
@@ -61,9 +63,8 @@ async function getNgoByUserId(req, res) {
 
 async function updateNgo(req, res) {
     try {
-        const { userId } = req.params;
         const { address,registrationNumber, capacity } = req.body;
-        const ngo = await ngoModel.findOne({ userId });
+        const ngo = await ngoModel.findOne({ userId: req.user.id });
         if (!ngo) {
             return res.status(404).json({ message: "Ngo not found" });
         }
@@ -87,6 +88,19 @@ async function updateNgo(req, res) {
     }
 }
 
+async function deleteNgo(req, res) {
+    try {
+        const { ngoId } = req.params;
+        const ngo = await ngoModel.findOneAndDelete({ _id: ngoId });
+        if (!ngo) {
+            return res.status(404).json({ message: "Ngo not found" });
+        }
+        res.status(200).json({ message: "Ngo deleted successfully" });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}   
+
 module.exports = {
-    createNgo, getAllNgos, getNgoByUserId, updateNgo
+    createNgo, getAllNgos, getUserNgo, updateNgo, deleteNgo
 }

@@ -4,11 +4,14 @@ const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
 
 async function createRestaurant(req, res) {
     try {
-        const { userId, address, foodLicenseNumber, openingTime, closingTime } = req.body;
-        if (!userId || !address || !foodLicenseNumber || !openingTime || !closingTime) {
+        const { address, foodLicenseNumber, openingTime, closingTime } = req.body;
+        if(req.user.isVerified === false){
+            return res.status(403).json({ message: "Please verify your email address before creating a restaurant" });
+        }
+        if (!address || !foodLicenseNumber || !openingTime || !closingTime) {
             return res.status(400).json({ message: "All fields are required" });
         }
-        const existingRestaurant = await restaurantModel.findOne({ userId });
+        const existingRestaurant = await restaurantModel.findOne({ userId: req.user.id });
         if (existingRestaurant) {
             return res.status(400).json({ message: "Restaurant already exists for this user" });
         }
@@ -20,11 +23,11 @@ async function createRestaurant(req, res) {
             })
             .send();
         const restaurant = await restaurantModel.create({
-            userId, 
-            address: { ...address, formattedAddress }, 
-            location: response.body.features[0].geometry, 
-            foodLicenseNumber, 
-            openingTime, 
+            userId: req.user.id,
+            address: { ...address, formattedAddress },
+            location: response.body.features[0].geometry,
+            foodLicenseNumber,
+            openingTime,
             closingTime
         });
         res.status(201).json({ message: "Restaurant created successfully", restaurant });
@@ -44,10 +47,9 @@ async function getAllRestaurants(req, res) {
     }
 }
 
-async function getRestaurantByUserId(req, res) {
+async function getUserRestaurant(req, res) {
     try {
-        const { userId } = req.params;
-        const restaurant = await restaurantModel.findOne({ userId });
+        const restaurant = await restaurantModel.findOne({ userId: req.user.id });
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
         }
@@ -59,9 +61,8 @@ async function getRestaurantByUserId(req, res) {
 
 async function updateRestaurant(req, res) {
     try {
-        const { userId } = req.params;
         const { address, foodLicenseNumber, openingTime, closingTime } = req.body;
-        const restaurant = await restaurantModel.findOne({ userId });
+        const restaurant = await restaurantModel.findOne({ userId: req.user.id });
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
         }
@@ -86,4 +87,17 @@ async function updateRestaurant(req, res) {
     }
 }
 
-module.exports = { createRestaurant, getAllRestaurants, getRestaurantByUserId, updateRestaurant };
+async function deleteRestaurant(req, res) {
+    try {
+        const { restaurantId } = req.params;
+        const restaurant = await restaurantModel.findOneAndDelete({ _id: restaurantId });
+        if (!restaurant) {
+            return res.status(404).json({ message: "Restaurant not found" });
+        }
+        res.status(200).json({ message: "Restaurant deleted successfully" });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+module.exports = { createRestaurant, getAllRestaurants, getUserRestaurant, updateRestaurant, deleteRestaurant };

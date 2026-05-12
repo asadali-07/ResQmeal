@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const { uploadImage } = require("../services/imagekit.service")
 const { sendEmail } = require("../services/email.service")
 const { redis } = require("../db/redis")
+const bcrypt = require('bcrypt')
 
 
 async function registerController(req, res) {
@@ -35,7 +36,7 @@ async function registerController(req, res) {
             },
             process.env.JWT_SECRET, { expiresIn: "7d" })
 
-        res.cookie = ("token", token, {
+        res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production" ? true : false,
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
@@ -48,7 +49,8 @@ async function registerController(req, res) {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
+                isVerified: user.isVerified
             }
         })
     } catch (error) {
@@ -79,11 +81,12 @@ async function loginController(req, res) {
                 id: user._id,
                 role: user.role,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                isVerified: user.isVerified
             },
             process.env.JWT_SECRET, { expiresIn: "7d" })
 
-        res.cookie = ('token', token, {
+        res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production" ? true : false,
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
@@ -95,7 +98,8 @@ async function loginController(req, res) {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
+                isVerified: user.isVerified
             }
         })
     } catch (error) {
@@ -142,7 +146,7 @@ async function sendOTPController(req, res) {
         await sendEmail(req.user.email, "OTP for email verification", `Your OTP for email verification is ${otp}`)
         return res.status(200).json({
             message: "OTP sent to the registered email address"
-        })
+        });
     }
     catch (error) {
         res.status(500).json({ message: "Error in sending OTP", error: error.message })
@@ -154,7 +158,7 @@ async function verifyOTPController(req, res) {
         const { otp } = req.body;
         const storedOTP = await redis.get(req.user.email)
         if (storedOTP === otp) {
-            await userModel.findByIdAndUpdate(req.user.id, { isEmailVerified: true })
+            await userModel.findByIdAndUpdate(req.user.id, { isVerified: true })
             await redis.del(req.user.email)
             return res.status(200).json({
                 message: "Email verified successfully"

@@ -1,15 +1,15 @@
 const express = require('express');
-const { createNgo, getAllNgos, getNgoByUserId, updateNgo } = require('../controllers/ngo.controller');
+const { createNgo, getAllNgos, getUserNgo, updateNgo, deleteNgo } = require('../controllers/ngo.controller');
 const {createAuthMiddleware} = require('../middlewares/auth.middleware');
 
 const ngoRouter = express.Router();
 
 ngoRouter.post('/', createAuthMiddleware(["ngo"]),createNgo)
-    .get('/', createAuthMiddleware(["admin"]), getAllNgos)
-    .get('/:userId', createAuthMiddleware(["ngo"]), getNgoByUserId)
-    .patch('/:userId', createAuthMiddleware(["ngo"]), updateNgo);
+    .get('/', createAuthMiddleware(["ngo"]), getUserNgo)
+    .patch('/', createAuthMiddleware(["ngo"]), updateNgo)
+    .get('/all', createAuthMiddleware(["admin"]), getAllNgos)
+    .delete('/:ngoId', createAuthMiddleware(["admin"]), deleteNgo);
     
-
 
 
 module.exports = ngoRouter;

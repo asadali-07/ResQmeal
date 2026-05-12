@@ -3,19 +3,19 @@ const volunteerModel = require('../models/volunteer.model');
 
 async function createVolunteer(req, res) {
     try {
-        const {userId,currentLocation,vehicleType} = req.body;
+        const {currentLocation,vehicleType} = req.body;
 
-        if (!userId || !currentLocation || !vehicleType) {
+        if (!currentLocation || !vehicleType) {
             return res.status(400).json({ message: "Missing required fields" });
         }
-        const existingVolunteer = await volunteerModel.findOne({ userId });
+        const existingVolunteer = await volunteerModel.findOne({ userId: req.user.id });
 
         if (existingVolunteer) {
             return res.status(400).json({ message: "Volunteer already exists for this user" });
         }
 
         const volunteer = await volunteerModel.create({
-            userId,
+            userId: req.user.id,
             currentLocation,
             vehicleType
         });
@@ -34,10 +34,9 @@ async function getAllVolunteers(req, res) {
     }
 }
 
-async function getVolunteerByUserId(req, res) {
+async function getUserVolunteer(req, res) {
     try {
-        const { userId } = req.params;
-        const volunteer = await volunteerModel.findOne({ userId });
+        const volunteer = await volunteerModel.findOne({ userId: req.user.id });
         if (!volunteer) {
             return res.status(404).json({ message: "Volunteer not found" });
         }
@@ -49,9 +48,8 @@ async function getVolunteerByUserId(req, res) {
 
 async function updateVolunteer(req, res) {
     try {
-        const { userId } = req.params;
         const { currentLocation, vehicleType,isAvailable } = req.body;
-        const volunteer = await volunteerModel.findOne({ userId });
+        const volunteer = await volunteerModel.findOne({ userId: req.user.id });
         if (!volunteer) {
             return res.status(404).json({ message: "Volunteer not found" });
         }
@@ -67,8 +65,8 @@ async function updateVolunteer(req, res) {
 
 async function deleteVolunteer(req, res) {
     try {
-        const { userId } = req.params;
-        const volunteer = await volunteerModel.findOneAndDelete({ userId });
+        const { volunteerId} = req.params;
+        const volunteer = await volunteerModel.findOneAndDelete({ _id: volunteerId });
         if (!volunteer) {
             return res.status(404).json({ message: "Volunteer not found" });
         }
@@ -91,7 +89,7 @@ async function getAllAvailableVolunteers(req, res) {
 module.exports = {
     createVolunteer,
     getAllVolunteers,
-    getVolunteerByUserId,
+    getUserVolunteer,
     updateVolunteer,
     getAllAvailableVolunteers,
     deleteVolunteer
