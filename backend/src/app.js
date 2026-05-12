@@ -5,6 +5,7 @@ const restaurantRouter = require('./routes/restaurant.routes');
 const ngoRouter = require('./routes/ngo.routes');
 const foodRouter = require('./routes/food.routes');
 const messageRouter = require('./routes/message.routes');
+const claimRouter = require('./routes/cliam.routes');
 
 
 const app = express();
@@ -17,6 +18,7 @@ app.use('/api/restaurants', restaurantRouter);
 app.use('/api/ngos', ngoRouter);
 app.use('/api/food',foodRouter)
 app.use('/api/messages',messageRouter)
+app.use('/api/claims',claimRouter)
 
 
 module.exports = app;

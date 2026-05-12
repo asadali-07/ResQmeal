@@ -1,7 +1,7 @@
 const express = require('express');
 const { createAuthMiddleware } = require('../middlewares/auth.middleware');
 const { upload } = require('../middlewares/multer.middleware');
-const {  createFood, updateFood, getAvailableFood, getFoodById, claimFood, deleteFood } = require('../controllers/food.controller');
+const {  createFood, updateFood, getAvailableFood, getFoodById,deleteFood } = require('../controllers/food.controller');
 
 
 const foodRouter = express.Router();
@@ -10,7 +10,6 @@ foodRouter.post('/create',createAuthMiddleware(["restaurant"]),upload.single("fo
 foodRouter.post('/update/:foodId',createAuthMiddleware(["restaurant"]),upload.single("foodImage"),updateFood)
 foodRouter.get('/available',createAuthMiddleware(["ngo", "volunteer"]),getAvailableFood)
 foodRouter.get('/:foodId',createAuthMiddleware(["ngo", "volunteer"]),getFoodById)
-foodRouter.patch('/claim/:foodId',createAuthMiddleware(["ngo"]),claimFood)
 foodRouter.delete('/:foodId',createAuthMiddleware(["restaurant"]),deleteFood)
 
 module.exports = foodRouter;

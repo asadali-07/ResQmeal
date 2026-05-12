@@ -1,5 +1,6 @@
 const ngoModel = require("../models/ngo.model");
 const restaurantModel = require("../models/restaurant.model");
+const foodModel = require("../models/food.model");
 const { uploadImage } = require("../services/imagekit.service");
 
 
@@ -133,15 +134,15 @@ async function getFoodById(req, res) {
 
 async function deleteFood(req, res) {
     try {
-        const restaurant = await restaurantModel.findOne({ 
-            userId: req.user.id 
+        const restaurant = await restaurantModel.findOne({
+            userId: req.user.id
         });
 
         const { foodId } = req.params;
 
         if (!restaurant) {
-            return res.status(404).json({ 
-                message: "Restaurant not found" 
+            return res.status(404).json({
+                message: "Restaurant not found"
             });
         }
 
@@ -151,8 +152,8 @@ async function deleteFood(req, res) {
         });
 
         if (!food) {
-            return res.status(404).json({ 
-                message: "Food not found" 
+            return res.status(404).json({
+                message: "Food not found"
             });
         }
 
@@ -176,57 +177,5 @@ async function deleteFood(req, res) {
     }
 }
 
-async function claimFood(req, res) {
-    try {
-        const user = req.user;
 
-        const { foodId } = req.params;
-
-        const food = await foodModel.findById(foodId);
-
-        const ngo = await ngoModel.findOne({
-            userId: req.user.id
-        });
-
-        if (!ngo) {
-            return res.status(404).json({
-                message: "NGO not found"
-            });
-        }
-
-        if (!food) {
-            return res.status(404).json({
-                message: "Food not found"
-            });
-        }
-
-        if (food.status !== "available") {
-            return res.status(400).json({
-                message: "Food is not available for claiming"
-            });
-        }
-
-        food.status = "claimed";
-        food.claimedBy = ngo._id;
-
-        await food.save();
-        await food.populate({
-            path: "claimedBy", populate: {
-                path: 'userId',
-                select: "name profileImage email"
-            }
-        })
-        return res.status(200).json({
-            message: "Food claimed successfully",
-            food
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            message: "Error in claiming the food",
-            error: error.message
-        });
-    }
-}
-
-module.exports = { createFood, updateFood, getAvailableFood, getFoodById, deleteFood, claimFood };
+module.exports = { createFood, updateFood, getAvailableFood, getFoodById, deleteFood };

@@ -1,4 +1,4 @@
-const ngoSchema = require("../models/ngo.model");
+const ngoModel = require("../models/ngo.model");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
 
@@ -9,7 +9,7 @@ async function createNgo(req, res) {
         if (!userId || !address || !registrationNumber || !capacity) {
             return res.status(400).json({ message: "All fields are required" });
         }
-        const existingNgo = await ngoSchema.findOne({ userId });
+        const existingNgo = await ngoModel.findOne({ userId });
         if (existingNgo) {
             return res.status(400).json({ message: "Ngo already exists for this user" });
         }
@@ -20,7 +20,7 @@ async function createNgo(req, res) {
                 limit: 1,
             })
             .send();
-        const newNgo = await ngoSchema.create({
+        const newNgo = await ngoModel.create({
             userId,
             address: { ...address, formattedAddress },
             location: response.body.features[0].geometry,
@@ -39,7 +39,7 @@ async function createNgo(req, res) {
 
 async function getAllNgos(req, res) {
     try {
-        const ngos = await ngoSchema.find();
+        const ngos = await ngoModel.find();
         res.status(200).json({ message: "Ngos retrieved successfully", ngos });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -49,7 +49,7 @@ async function getAllNgos(req, res) {
 async function getNgoByUserId(req, res) {
     try {
         const { userId } = req.params;
-        const ngo = await ngoSchema.findOne({ userId });
+        const ngo = await ngoModel.findOne({ userId });
         if (!ngo) {
             return res.status(404).json({ message: "Ngo not found" });
         }
@@ -63,7 +63,7 @@ async function updateNgo(req, res) {
     try {
         const { userId } = req.params;
         const { address,registrationNumber, capacity } = req.body;
-        const ngo = await ngoSchema.findOne({ userId });
+        const ngo = await ngoModel.findOne({ userId });
         if (!ngo) {
             return res.status(404).json({ message: "Ngo not found" });
         }

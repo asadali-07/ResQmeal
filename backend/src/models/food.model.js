@@ -1,49 +1,69 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const foodSchema = new mongoose.Schema({
+const foodSchema = new mongoose.Schema(
+  {
     restaurantId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "restaurants",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "restaurants",
+      required: true,
     },
-    name: String,
-    description: String,
-    quantity: Number,
-    expiryTime: Date,
-    pickupTime: Date,
+
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    expiryTime: {
+      type: Date,
+      required: true,
+    },
+
+    pickupTime: {
+      type: Date,
+      required: true,
+    },
+
     foodImage: {
-        url: String,
-        thumbnail: String,
-        fileId: String
+      url: String,
+      thumbnail: String,
+      fileId: String,
     },
+
     location: {
-        type: {
-            type: String,
-            enum: ['Point'],
-            required: true
-        },
-        coordinates: {
-            type: [Number],
-            required: true
-        }
+      type: {
+        type: String,
+        enum: ["Point"],
+        required: true,
+      },
+      coordinates: {
+        type: [Number], // [lng, lat]
+        required: true,
+      },
     },
 
     status: {
-        type: String,
-        enum: ["available", "claimed", "expired"],
-        default: "available"
+      type: String,
+      enum: ["available","pending", "picked_up", "delivered", "expired"],
+      default: "available",
     },
-    claimedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "ngos",
-        default: null,
-    }
 
-}, { timestamps: true })
+  },
+  { timestamps: true }
+);
 
+// 📍 Geo index
 foodSchema.index({ location: "2dsphere" });
 
-const foodModel = mongoose.model("foods", foodSchema)
-
-module.exports = foodModel
-
+module.exports = mongoose.model("foods", foodSchema);

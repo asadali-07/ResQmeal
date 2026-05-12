@@ -1,4 +1,4 @@
-const restaurantSchema = require('../models/restaurant.model');
+const restaurantModel = require('../models/restaurant.model');
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
 
@@ -8,7 +8,7 @@ async function createRestaurant(req, res) {
         if (!userId || !address || !foodLicenseNumber || !openingTime || !closingTime) {
             return res.status(400).json({ message: "All fields are required" });
         }
-        const existingRestaurant = await restaurantSchema.findOne({ userId });
+        const existingRestaurant = await restaurantModel.findOne({ userId });
         if (existingRestaurant) {
             return res.status(400).json({ message: "Restaurant already exists for this user" });
         }
@@ -19,7 +19,7 @@ async function createRestaurant(req, res) {
                 limit: 1,
             })
             .send();
-        const restaurant = await restaurantSchema.create({
+        const restaurant = await restaurantModel.create({
             userId, 
             address: { ...address, formattedAddress }, 
             location: response.body.features[0].geometry, 
@@ -36,7 +36,7 @@ async function createRestaurant(req, res) {
 
 async function getAllRestaurants(req, res) {
     try {
-        const restaurants = await restaurantSchema.find();
+        const restaurants = await restaurantModel.find();
         res.status(200).json({ message: "Restaurants retrieved successfully", restaurants });
     }
     catch (err) {
@@ -47,7 +47,7 @@ async function getAllRestaurants(req, res) {
 async function getRestaurantByUserId(req, res) {
     try {
         const { userId } = req.params;
-        const restaurant = await restaurantSchema.findOne({ userId });
+        const restaurant = await restaurantModel.findOne({ userId });
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
         }
@@ -61,7 +61,7 @@ async function updateRestaurant(req, res) {
     try {
         const { userId } = req.params;
         const { address, foodLicenseNumber, openingTime, closingTime } = req.body;
-        const restaurant = await restaurantSchema.findOne({ userId });
+        const restaurant = await restaurantModel.findOne({ userId });
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
         }
