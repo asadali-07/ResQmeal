@@ -177,7 +177,7 @@ async function claimFood(req, res) {
         food.status = "claimed";
         food.claimedBy = ngo._id;
         await food.save();
-        food.populate({
+        await food.populate({
             path: "claimedBy", populate: {
                 path: 'userId',
                 select: "name profileImage email"
