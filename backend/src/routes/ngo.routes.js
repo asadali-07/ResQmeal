@@ -1,5 +1,5 @@
 const express = require('express');
-const { createNgo, getAllNgos, getNgoByUserId, updateNgo } = require('../controllers/ngo.controllers');
+const { createNgo, getAllNgos, getNgoByUserId, updateNgo } = require('../controllers/ngo.controller');
 const {createAuthMiddleware} = require('../middlewares/auth.middleware');
 
 const ngoRouter = express.Router();
