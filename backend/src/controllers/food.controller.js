@@ -210,15 +210,12 @@ async function claimFood(req, res) {
         food.claimedBy = ngo._id;
 
         await food.save();
-
         await food.populate({
-            path: "claimedBy",
-            populate: {
-                path: "userId",
-                select: "name profileImage address"
+            path: "claimedBy", populate: {
+                path: 'userId',
+                select: "name profileImage email"
             }
-        });
-
+        })
         return res.status(200).json({
             message: "Food claimed successfully",
             food

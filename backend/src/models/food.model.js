@@ -36,7 +36,7 @@ const foodSchema = new mongoose.Schema({
     claimedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "ngos",
-        default: null
+        default: null,
     }
 
 }, { timestamps: true })
