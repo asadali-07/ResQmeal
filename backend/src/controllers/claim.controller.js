@@ -3,6 +3,7 @@ const foodModel = require('../models/food.model');
 const volunteerModel = require('../models/volunteer.model');
 const restaurantModel = require('../models/restaurant.model');
 const jwt = require('jsonwebtoken');
+const { sendNotification } = require('../services/notification.service');
 
 async function createClaim(req, res) {
     const { foodId } = req.params;
@@ -36,6 +37,24 @@ async function createClaim(req, res) {
         });
         await claim.save();
         await foodModel.findByIdAndUpdate(foodId, { status: 'pending' });
+        for (const volunteer of volunteers) {
+
+            await sendNotification({
+                type: "NEW_PICKUP",
+                senderId: ngoId,
+                receiverId: volunteer.userId.toString(),
+                message: `New food pickup available near you from ${restaurant.restaurantName}`,
+                claimId: claim._id,
+                foodId: food._id,
+
+                restaurantName: restaurant.restaurantName,
+                pickupAddress: restaurant.address,
+
+                foodName: food.name,
+                quantity: food.quantity
+            });
+
+        }
         return res.status(201).json({ message: 'Claim created successfully', claim, volunteers });
     } catch (error) {
         return res.status(500).json({ message: 'Error occurred while creating claim' });
@@ -61,6 +80,15 @@ async function acceptClaim(req, res) {
         claim.status = 'accepted';
         claim.acceptedAt = new Date();
         await claim.save();
+
+        await sendNotification({
+            type: "CLAIM_ACCEPTED",
+            senderId: volunteerId,
+            receiverId: claim.ngoId.toString(),
+            message: `Your claim for food pickup has been accepted by a volunteer`,
+            claimId: claim._id,
+            foodId: claim.foodId,
+        });
         return res.status(200).json({ message: 'Claim accepted successfully', claim });
     } catch (error) {
         return res.status(500).json({ message: 'Error occurred while accepting claim' });
@@ -90,6 +118,14 @@ async function verifyPickup(req, res) {
         claim.pickedUpAt = new Date();
         await claim.save();
         await foodModel.findByIdAndUpdate(claim.foodId, { status: 'picked_up' });
+        await sendNotification({
+            type: "PICKUP_VERIFIED",
+            senderId: claim.volunteerId.toString(),
+            receiverId: claim.ngoId.toString(),
+            message: `Pickup for your claim has been verified by the volunteer`,
+            claimId: claim._id,
+            foodId: claim.foodId,
+        });
         return res.status(200).json({ message: 'Pickup verified successfully', claim });
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
@@ -127,6 +163,14 @@ async function verifyDelivery(req, res) {
         claim.deliveredAt = new Date();
         await claim.save();
         await foodModel.findByIdAndUpdate(claim.foodId, { status: 'delivered' });
+        await sendNotification({
+            type: "DELIVERY_VERIFIED",
+            senderId: claim.volunteerId.toString(),
+            receiverId: claim.ngoId.toString(),
+            message: `Delivery for your claim has been verified by the volunteer`,
+            claimId: claim._id,
+            foodId: claim.foodId,
+        });
         return res.status(200).json({ message: 'Delivery verified successfully', claim });
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
@@ -155,6 +199,14 @@ async function cancelClaim(req, res) {
         claim.cancelledAt = new Date();
         await claim.save();
         await foodModel.findByIdAndUpdate(claim.foodId, { status: 'available' });
+            await sendNotification({
+            type: "CLAIM_CANCELLED",
+            senderId: claim.ngoId.toString(),
+            receiverId: claim.volunteerId ? claim.volunteerId.toString() : null,
+            message: `Claim for food pickup has been cancelled by the NGO`,
+            claimId: claim._id,
+            foodId: claim.foodId,
+        });
         return res.status(200).json({ message: 'Claim cancelled successfully', claim });
     } catch (error) {
         return res.status(500).json({ message: 'Error occurred while cancelling claim' });
