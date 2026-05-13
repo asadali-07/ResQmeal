@@ -55,6 +55,14 @@ async function createClaim(req, res) {
             });
 
         }
+        await sendNotification({
+            type: "CLAIM_CREATED",
+            senderId: ngoId,
+            receiverId: restaurant.userId.toString(),
+            message: `An ngo has claimed your food item ${food.name}`,
+            claimId: claim._id,
+            foodId: food._id,
+        });
         return res.status(201).json({ message: 'Claim created successfully', claim, volunteers });
     } catch (error) {
         return res.status(500).json({ message: 'Error occurred while creating claim' });
