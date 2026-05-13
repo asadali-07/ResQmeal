@@ -1,233 +1,671 @@
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+
 const claimModel = require('../models/claim.model');
 const foodModel = require('../models/food.model');
 const volunteerModel = require('../models/volunteer.model');
 const restaurantModel = require('../models/restaurant.model');
-const jwt = require('jsonwebtoken');
+
 const { sendNotification } = require('../services/notification.service');
 
+
 async function createClaim(req, res) {
+
     const { foodId } = req.params;
     const ngoId = req.user.id;
+
+    const session = await mongoose.startSession();
+
     try {
-        const food = await foodModel.findById(foodId);
-        if (!food) {
-            return res.status(404).json({ message: 'Food not found' });
-        }
-        if (food.status !== 'available') {
-            return res.status(400).json({ message: 'Food is not available for claim' });
-        }
-        const restaurant = await restaurantModel.findById(food.restaurantId);
-        if (!restaurant) {
-            return res.status(404).json({ message: 'Restaurant not found' });
-        }
-        // Find nearby volunteers (within 5km) who are available
-        const volunteers = await volunteerModel.find({
-            currentLocation: {
-                $near: {
-                    $geometry: restaurant.location,
-                    $maxDistance: 5000, // 5km
+
+        let createdClaim = null;
+        let restaurant = null;
+        let food = null;
+        let volunteers = [];
+
+        await session.withTransaction(async () => {
+
+            food = await foodModel.findOneAndUpdate(
+                {
+                    _id: foodId,
+                    status: 'available'
                 },
+                {
+                    $set: {
+                        status: 'pending'
+                    }
+                },
+                {
+                    new: true,
+                    session
+                }
+            );
+
+            if (!food) {
+                throw new Error('Food is not available for claim');
+            }
+
+            restaurant = await restaurantModel
+                .findById(food.restaurantId)
+                .session(session);
+
+            if (!restaurant) {
+                throw new Error('Restaurant not found');
+            }
+
+            volunteers = await volunteerModel.find({
+                currentLocation: {
+                    $near: {
+                        $geometry: restaurant.location,
+                        $maxDistance: 5000
+                    }
+                },
+                isAvailable: true
+            });
+
+            const claim = await claimModel.create(
+                [
+                    {
+                        foodId: food._id,
+                        ngoId,
+                        restaurantId: restaurant.userId,
+                        status: 'pending'
+                    }
+                ],
+                { session }
+            );
+
+            createdClaim = claim[0];
+
+        });
+
+        await Promise.all(
+
+            volunteers.map((volunteer) =>
+
+                sendNotification({
+
+                    type: "NEW_PICKUP",
+
+                    senderId: ngoId,
+
+                    receiverId: volunteer.userId.toString(),
+
+                    message: `New food pickup available near you from ${restaurant.restaurantName}`,
+
+                    claimId: createdClaim._id,
+
+                    foodId: food._id,
+
+                    restaurantName: restaurant.restaurantName,
+
+                    pickupAddress: restaurant.address,
+
+                    foodName: food.name,
+
+                    quantity: food.quantity
+
+                })
+
+            )
+
+        );
+
+        await sendNotification({
+
+            type: "CLAIM_CREATED",
+
+            senderId: ngoId,
+
+            receiverId: restaurant.userId.toString(),
+
+            message: `An NGO has claimed your food item ${food.name}`,
+
+            claimId: createdClaim._id,
+
+            foodId: food._id
+
+        });
+
+        return res.status(201).json({
+
+            success: true,
+
+            message: 'Claim created successfully',
+
+            claim: createdClaim,
+
+            volunteers
+
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(400).json({
+
+            success: false,
+
+            message: error.message || 'Error occurred while creating claim'
+
+        });
+
+    } finally {
+
+        session.endSession();
+
+    }
+
+}
+
+
+async function acceptClaim(req, res) {
+
+    const { claimId } = req.params;
+
+    const volunteerId = req.user.id;
+
+    try {
+
+        const pickupToken = jwt.sign(
+            { claimId },
+            process.env.JWT_SECRET,
+            { expiresIn: "2h" }
+        );
+
+        const deliveryToken = jwt.sign(
+            { claimId },
+            process.env.JWT_SECRET,
+            { expiresIn: "4h" }
+        );
+
+
+        const claim = await claimModel.findOneAndUpdate(
+
+            {
+                _id: claimId,
+                status: 'pending'
             },
-            isAvailable: true,
-        });
-        const claim = new claimModel({
-            foodId: food._id,
-            ngoId: ngoId,
-            restaurantId: restaurant._id
-        });
-        await claim.save();
-        await foodModel.findByIdAndUpdate(foodId, { status: 'pending' });
-        for (const volunteer of volunteers) {
 
-            await sendNotification({
-                type: "NEW_PICKUP",
-                senderId: ngoId,
-                receiverId: volunteer.userId.toString(),
-                message: `New food pickup available near you from ${restaurant.restaurantName}`,
-                claimId: claim._id,
-                foodId: food._id,
+            {
+                $set: {
+                    volunteerId,
+                    pickupToken,
+                    deliveryToken,
+                    acceptedAt: new Date(),
+                    status: 'accepted'
+                }
+            },
 
-                restaurantName: restaurant.restaurantName,
-                pickupAddress: restaurant.address,
+            {
+                new: true
+            }
 
-                foodName: food.name,
-                quantity: food.quantity
+        );
+
+        if (!claim) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Claim already accepted or unavailable'
+
             });
 
         }
-        await sendNotification({
-            type: "CLAIM_CREATED",
-            senderId: ngoId,
-            receiverId: restaurant.userId.toString(),
-            message: `An ngo has claimed your food item ${food.name}`,
-            claimId: claim._id,
-            foodId: food._id,
-        });
-        return res.status(201).json({ message: 'Claim created successfully', claim, volunteers });
-    } catch (error) {
-        return res.status(500).json({ message: 'Error occurred while creating claim' });
-    }
-}
-
-async function acceptClaim(req, res) {
-    const { claimId } = req.params;
-    const volunteerId = req.user.id;
-    try {
-        const claim = await claimModel.findById(claimId);
-        if (!claim) {
-            return res.status(404).json({ message: 'Claim not found' });
-        }
-        if (claim.status !== 'pending') {
-            return res.status(400).json({ message: 'Claim is not pending' });
-        }
-        let pickupToken = jwt.sign({ claimId }, process.env.JWT_SECRET, { expiresIn: "2h" });
-        let deliveryToken = jwt.sign({ claimId }, process.env.JWT_SECRET, { expiresIn: "4h" });
-        claim.pickupToken = pickupToken;
-        claim.deliveryToken = deliveryToken;
-        claim.volunteerId = volunteerId;
-        claim.status = 'accepted';
-        claim.acceptedAt = new Date();
-        await claim.save();
 
         await sendNotification({
+
             type: "CLAIM_ACCEPTED",
+
             senderId: volunteerId,
+
             receiverId: claim.ngoId.toString(),
-            message: `Your claim for food pickup has been accepted by a volunteer`,
+
+            message: `Your claim has been accepted by a volunteer`,
+
             claimId: claim._id,
+
             foodId: claim.foodId,
+
+            deliveryToken
+
         });
-        return res.status(200).json({ message: 'Claim accepted successfully', claim });
+
+        await sendNotification({
+
+            type: "CLAIM_ACCEPTED",
+
+            senderId: volunteerId,
+
+            receiverId: claim.restaurantId.toString(),
+
+            message: `Your food item has been accepted by a volunteer`,
+
+            claimId: claim._id,
+
+            foodId: claim.foodId,
+
+            pickupToken
+
+        });
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: 'Claim accepted successfully'
+
+        });
+
     } catch (error) {
-        return res.status(500).json({ message: 'Error occurred while accepting claim' });
+
+        console.log(error);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: 'Error occurred while accepting claim'
+
+        });
+
     }
+
 }
+
 
 async function verifyPickup(req, res) {
+
     const { claimId } = req.params;
+
     const { pickupToken } = req.body;
+
+    const volunteerId = req.user.id;
+
     try {
-        const claim = await claimModel.findById(claimId);
+
+        const decoded = jwt.verify(
+            pickupToken,
+            process.env.JWT_SECRET
+        );
+
+        if (decoded.claimId !== claimId) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Invalid pickup token'
+
+            });
+
+        }
+
+        const claim = await claimModel.findOneAndUpdate(
+
+            {
+                _id: claimId,
+                status: 'accepted',
+                pickupVerified: false,
+                volunteerId
+            },
+
+            {
+                $set: {
+                    status: 'picked_up',
+                    pickupVerified: true,
+                    pickedUpAt: new Date()
+                }
+            },
+
+            {
+                new: true
+            }
+
+        );
+
         if (!claim) {
-            return res.status(404).json({ message: 'Claim not found' });
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Pickup already verified or invalid claim'
+
+            });
+
         }
-        if (claim.status !== 'accepted') {
-            return res.status(400).json({ message: 'Claim is not accepted' });
-        }
-        const { claimId: decodedClaimId } = jwt.verify(pickupToken, process.env.JWT_SECRET);
-        if (decodedClaimId !== claimId) {
-            return res.status(400).json({ message: 'Invalid pickup token' });
-        }
-        if (claim.pickupVerified) {
-            return res.status(400).json({ message: 'Food already picked up' });
-        }
-        claim.status = 'picked_up';
-        claim.pickupVerified = true;
-        claim.pickedUpAt = new Date();
-        await claim.save();
-        await foodModel.findByIdAndUpdate(claim.foodId, { status: 'picked_up' });
+
+        await foodModel.findByIdAndUpdate(
+
+            claim.foodId,
+
+            {
+                status: 'picked_up'
+            }
+
+        );
+
         await sendNotification({
+
             type: "PICKUP_VERIFIED",
-            senderId: claim.volunteerId.toString(),
+
+            senderId: volunteerId,
+
             receiverId: claim.ngoId.toString(),
-            message: `Pickup for your claim has been verified by the volunteer`,
+
+            message: `Pickup has been verified`,
+
             claimId: claim._id,
-            foodId: claim.foodId,
+
+            foodId: claim.foodId
+
         });
-        return res.status(200).json({ message: 'Pickup verified successfully', claim });
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: 'Pickup verified successfully'
+
+        });
+
     } catch (error) {
+
+        console.log(error);
+
         if (error.name === 'TokenExpiredError') {
-            return res.status(400).json({ message: 'Pickup token expired' });
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Pickup token expired'
+
+            });
+
         }
 
         if (error.name === 'JsonWebTokenError') {
-            return res.status(400).json({ message: 'Invalid pickup token' });
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Invalid pickup token'
+
+            });
+
         }
 
-        return res.status(500).json({ message: 'Error occurred while verifying pickup' });
+        return res.status(500).json({
+
+            success: false,
+
+            message: 'Error occurred while verifying pickup'
+
+        });
+
     }
+
 }
+
 
 async function verifyDelivery(req, res) {
+
     const { claimId } = req.params;
+
     const { deliveryToken } = req.body;
+
+    const volunteerId = req.user.id;
+
     try {
-        const claim = await claimModel.findById(claimId);
+
+        const decoded = jwt.verify(
+            deliveryToken,
+            process.env.JWT_SECRET
+        );
+
+        if (decoded.claimId !== claimId) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Invalid delivery token'
+
+            });
+
+        }
+
+        const claim = await claimModel.findOneAndUpdate(
+
+            {
+                _id: claimId,
+                status: 'picked_up',
+                deliveryVerified: false,
+                volunteerId
+            },
+
+            {
+                $set: {
+                    status: 'delivered',
+                    deliveryVerified: true,
+                    deliveredAt: new Date()
+                }
+            },
+
+            {
+                new: true
+            }
+
+        );
+
         if (!claim) {
-            return res.status(404).json({ message: 'Claim not found' });
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Delivery already verified or invalid claim'
+
+            });
+
         }
-        if (claim.status !== 'picked_up') {
-            return res.status(400).json({ message: 'Claim is not picked up' });
-        }
-        const { claimId: decodedClaimId } = jwt.verify(deliveryToken, process.env.JWT_SECRET);
-        if (decodedClaimId !== claimId) {
-            return res.status(400).json({ message: 'Invalid delivery token' });
-        }
-        if (claim.deliveryVerified) {
-            return res.status(400).json({ message: 'Food already delivered' });
-        }
-        claim.status = 'delivered';
-        claim.deliveryVerified = true;
-        claim.deliveredAt = new Date();
-        await claim.save();
-        await foodModel.findByIdAndUpdate(claim.foodId, { status: 'delivered' });
+
+        await foodModel.findByIdAndUpdate(
+
+            claim.foodId,
+
+            {
+                status: 'delivered'
+            }
+
+        );
+
         await sendNotification({
+
             type: "DELIVERY_VERIFIED",
-            senderId: claim.volunteerId.toString(),
+
+            senderId: volunteerId,
+
             receiverId: claim.ngoId.toString(),
-            message: `Delivery for your claim has been verified by the volunteer`,
+
+            message: `Delivery has been verified`,
+
             claimId: claim._id,
-            foodId: claim.foodId,
+
+            foodId: claim.foodId
+
         });
-        return res.status(200).json({ message: 'Delivery verified successfully', claim });
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: 'Delivery verified successfully'
+
+        });
+
     } catch (error) {
+
+        console.log(error);
+
         if (error.name === 'TokenExpiredError') {
-            return res.status(400).json({ message: 'Delivery token expired' });
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Delivery token expired'
+
+            });
+
         }
 
         if (error.name === 'JsonWebTokenError') {
-            return res.status(400).json({ message: 'Invalid delivery token' });
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Invalid delivery token'
+
+            });
+
         }
 
-        return res.status(500).json({ message: 'Error occurred while verifying delivery' });
+        return res.status(500).json({
+
+            success: false,
+
+            message: 'Error occurred while verifying delivery'
+
+        });
+
     }
+
 }
+
 
 async function cancelClaim(req, res) {
+
     const { claimId } = req.params;
+
+    const ngoId = req.user.id;
+
     try {
-        const claim = await claimModel.findById(claimId);
-        if (!claim) {
-            return res.status(404).json({ message: 'Claim not found' });
-        }
-        if (claim.status == 'delivered' || claim.status == 'cancelled') {
-            return res.status(400).json({ message: 'Claim is already delivered or cancelled' });
-        }
-        if (claim.status == 'accepted') {
-            await sendNotification({
-            type: "CLAIM_CANCELLED",
-            senderId: claim.ngoId.toString(),
-            receiverId: claim.volunteerId ? claim.volunteerId.toString() : null,
-            message: `Claim for food pickup has been cancelled by the NGO`,
-            claimId: claim._id,
-            foodId: claim.foodId,
+
+        const claim = await claimModel.findOne({
+
+            _id: claimId,
+
+            ngoId
+
         });
+
+        if (!claim) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message: 'Claim not found'
+
+            });
+
         }
+
+        if (
+            claim.status === 'delivered' ||
+            claim.status === 'cancelled'
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: 'Claim already delivered or cancelled'
+
+            });
+
+        }
+
         claim.status = 'cancelled';
+
         claim.cancelledAt = new Date();
+
         await claim.save();
-        await foodModel.findByIdAndUpdate(claim.foodId, { status: 'available' });
-            
-        return res.status(200).json({ message: 'Claim cancelled successfully', claim });
+
+        await foodModel.findByIdAndUpdate(
+
+            claim.foodId,
+
+            {
+                status: 'available'
+            }
+
+        );
+
+        if (claim.volunteerId) {
+
+            await sendNotification({
+
+                type: "CLAIM_CANCELLED",
+
+                senderId: ngoId,
+
+                receiverId: claim.volunteerId.toString(),
+
+                message: `Claim has been cancelled by NGO`,
+
+                claimId: claim._id,
+
+                foodId: claim.foodId
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: 'Claim cancelled successfully'
+
+        });
+
     } catch (error) {
-        return res.status(500).json({ message: 'Error occurred while cancelling claim' });
+
+        console.log(error);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: 'Error occurred while cancelling claim'
+
+        });
+
     }
+
 }
 
+
+
 module.exports = {
+
     createClaim,
+
     acceptClaim,
+
     verifyPickup,
+
     verifyDelivery,
+
     cancelClaim
+
 };
