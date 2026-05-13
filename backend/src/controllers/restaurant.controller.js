@@ -1,19 +1,24 @@
 const restaurantModel = require('../models/restaurant.model');
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
+const {uploadImage} = require('../services/imagekit.service');
 
 async function createRestaurant(req, res) {
     try {
-        const { address, foodLicenseNumber, openingTime, closingTime } = req.body;
+        const { address, foodLicenseNumber, openingTime, closingTime, restaurantName, restaurantDescription } = req.body;
         if(req.user.isVerified === false){
             return res.status(403).json({ message: "Please verify your email address before creating a restaurant" });
         }
-        if (!address || !foodLicenseNumber || !openingTime || !closingTime) {
+        if (!address || !foodLicenseNumber || !openingTime || !closingTime|| !restaurantName || !restaurantDescription) {
             return res.status(400).json({ message: "All fields are required" });
         }
         const existingRestaurant = await restaurantModel.findOne({ userId: req.user.id });
         if (existingRestaurant) {
             return res.status(400).json({ message: "Restaurant already exists for this user" });
+        }
+        let restaurantPicture=null;
+        if(req.file){
+            restaurantPicture = await uploadImage({ buffer: req.file.buffer });
         }
         const formattedAddress = `${address.street}, ${address.area}, ${address.landmark}, ${address.city}, ${address.state}, ${address.pincode}, ${address.country}`;
         let response = await geocodingClient
@@ -28,7 +33,10 @@ async function createRestaurant(req, res) {
             location: response.body.features[0].geometry,
             foodLicenseNumber,
             openingTime,
-            closingTime
+            closingTime,
+            restaurantName,
+            restaurantDescription,
+            restaurantPicture
         });
         res.status(201).json({ message: "Restaurant created successfully", restaurant });
     }
@@ -61,7 +69,7 @@ async function getUserRestaurant(req, res) {
 
 async function updateRestaurant(req, res) {
     try {
-        const { address, foodLicenseNumber, openingTime, closingTime } = req.body;
+        const { address, foodLicenseNumber, openingTime, closingTime, restaurantName, restaurantDescription } = req.body;
         const restaurant = await restaurantModel.findOne({ userId: req.user.id });
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
@@ -80,6 +88,11 @@ async function updateRestaurant(req, res) {
         restaurant.foodLicenseNumber = foodLicenseNumber || restaurant.foodLicenseNumber;
         restaurant.openingTime = openingTime || restaurant.openingTime;
         restaurant.closingTime = closingTime || restaurant.closingTime;
+        restaurant.restaurantName = restaurantName || restaurant.restaurantName;
+        restaurant.restaurantDescription = restaurantDescription || restaurant.restaurantDescription;
+        if(req.file){
+            restaurant.restaurantPicture = await uploadImage({ buffer: req.file.buffer });
+        }
         await restaurant.save();
         res.status(200).json({ message: "Restaurant updated successfully", restaurant });
     } catch (error) {

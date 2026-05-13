@@ -5,6 +5,10 @@ async function createVolunteer(req, res) {
     try {
         const {currentLocation,vehicleType} = req.body;
 
+        if(req.user.isVerified===false){
+            return res.status(403).json({ message: "Please verify your account to create a volunteer profile" });
+        }
+
         if (!currentLocation || !vehicleType) {
             return res.status(400).json({ message: "Missing required fields" });
         }

@@ -100,7 +100,7 @@ async function getAvailableFood(req, res) {
                     $maxDistance: 5000 // 5 km
                 }
             }
-        }).populate("restaurantId", "address openingTime closingTime")
+        }).populate("restaurantId", "address openingTime closingTime restaurantName")
         return res.status(200).json({
             message: "Available food fetched successfully",
             foods
@@ -116,7 +116,7 @@ async function getAvailableFood(req, res) {
 async function getFoodById(req, res) {
     try {
         const { foodId } = req.params;
-        const food = await foodModel.findById(foodId).populate("restaurantId", "address openingTime closingTime")
+        const food = await foodModel.findById(foodId).populate("restaurantId", "address openingTime closingTime restaurantName")
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }

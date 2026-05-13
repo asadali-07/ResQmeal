@@ -1,20 +1,25 @@
 const ngoModel = require("../models/ngo.model");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
+const {uploadImage} = require('../services/imagekit.service');
 
 
 async function createNgo(req, res) {
     try {
-        const { address, registrationNumber, capacity } = req.body;
+        const { address, registrationNumber, capacity,ngoName,ngoDescription } = req.body;
         if(req.user.isVerified === false){
             return res.status(403).json({ message: "Please verify your email address before creating an ngo" });
         }
-        if (!address || !registrationNumber || !capacity) {
+        if (!address || !registrationNumber || !capacity || !ngoName || !ngoDescription) {
             return res.status(400).json({ message: "All fields are required" });
         }
         const existingNgo = await ngoModel.findOne({ userId: req.user.id });
         if (existingNgo) {
             return res.status(400).json({ message: "Ngo already exists for this user" });
+        }
+        let ngoPicture=null;
+        if(req.file){
+           ngoPicture = await uploadImage({ buffer: req.file.buffer });
         }
         const formattedAddress = `${address.street}, ${address.area}, ${address.landmark}, ${address.city}, ${address.state}, ${address.pincode}, ${address.country}`;
         let response = await geocodingClient
@@ -28,7 +33,10 @@ async function createNgo(req, res) {
             address: { ...address, formattedAddress },
             location: response.body.features[0].geometry,
             registrationNumber,
-            capacity
+            capacity,
+            ngoName,
+            ngoDescription,
+            ngoPicture
         });
         res.status(201).json({
             message: "Ngo created successfully",
@@ -63,7 +71,7 @@ async function getUserNgo(req, res) {
 
 async function updateNgo(req, res) {
     try {
-        const { address,registrationNumber, capacity } = req.body;
+        const { address,registrationNumber, capacity, ngoName, ngoDescription } = req.body;
         const ngo = await ngoModel.findOne({ userId: req.user.id });
         if (!ngo) {
             return res.status(404).json({ message: "Ngo not found" });
@@ -81,6 +89,11 @@ async function updateNgo(req, res) {
         }
         ngo.registrationNumber = registrationNumber || ngo.registrationNumber;
         ngo.capacity = capacity || ngo.capacity;
+        ngo.ngoName = ngoName || ngo.ngoName;
+        ngo.ngoDescription = ngoDescription || ngo.ngoDescription;
+        if(req.file){
+            ngo.ngoPicture = await uploadImage({ buffer: req.file.buffer });
+        }
         const updatedNgo = await ngo.save();
         res.status(200).json({ message: "Ngo updated successfully", updatedNgo });
     } catch (error) {

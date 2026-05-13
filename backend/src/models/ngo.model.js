@@ -7,6 +7,19 @@ const ngoSchema = new mongoose.Schema({
     required: true,
   },
 
+  ngoName: {
+    type: String,
+    required: true,
+  },
+
+  ngoDescription: String,
+
+  ngoPicture: {
+    url: String,
+    thumbnail: String,
+    fileId: String
+  },
+
   address: {
     street: String,
     area: String,

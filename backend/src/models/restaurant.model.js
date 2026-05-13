@@ -7,6 +7,19 @@ const restaurantSchema = new mongoose.Schema({
     required: true,
   },
 
+  restaurantName: {
+    type: String,
+    required: true,
+  },
+
+  restaurantDescription: String,
+
+  restaurantPicture: {
+    url: String,
+    thumbnail: String,
+    fileId: String
+  },
+
   address: {
     street: String,
     area: String,
@@ -23,14 +36,14 @@ const restaurantSchema = new mongoose.Schema({
 
   location: {
     type: {
-        type: String, 
-        enum: ['Point'], 
-        required: true
-      },
-      coordinates: {
-        type: [Number],
-        required: true
-      }
+      type: String,
+      enum: ['Point'],
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
   },
 
   foodLicenseNumber: String,
@@ -45,6 +58,6 @@ const restaurantSchema = new mongoose.Schema({
 
 restaurantSchema.index({ location: "2dsphere" });
 
-const restaurantModel = mongoose.model("restaurants",restaurantSchema)
+const restaurantModel = mongoose.model("restaurants", restaurantSchema)
 
 module.exports = restaurantModel
