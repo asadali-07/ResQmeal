@@ -195,10 +195,7 @@ async function cancelClaim(req, res) {
         if (claim.status == 'delivered' || claim.status == 'cancelled') {
             return res.status(400).json({ message: 'Claim is already delivered or cancelled' });
         }
-        claim.status = 'cancelled';
-        claim.cancelledAt = new Date();
-        await claim.save();
-        await foodModel.findByIdAndUpdate(claim.foodId, { status: 'available' });
+        if (claim.status == 'accepted') {
             await sendNotification({
             type: "CLAIM_CANCELLED",
             senderId: claim.ngoId.toString(),
@@ -207,6 +204,12 @@ async function cancelClaim(req, res) {
             claimId: claim._id,
             foodId: claim.foodId,
         });
+        }
+        claim.status = 'cancelled';
+        claim.cancelledAt = new Date();
+        await claim.save();
+        await foodModel.findByIdAndUpdate(claim.foodId, { status: 'available' });
+            
         return res.status(200).json({ message: 'Claim cancelled successfully', claim });
     } catch (error) {
         return res.status(500).json({ message: 'Error occurred while cancelling claim' });
