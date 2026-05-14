@@ -32,7 +32,8 @@ async function registerController(req, res) {
                 id: user._id,
                 role: user.role,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                isVerified: user.isVerified
             },
             process.env.JWT_SECRET, { expiresIn: "7d" })
 
@@ -130,7 +131,8 @@ async function updateProfileController(req, res) {
                 email: user.email,
                 phone: user.phone,
                 role : user.role,
-                profileImage: user.profileImage
+                profileImage: user.profileImage,
+                isVerified: user.isVerified
             }
 
         })

@@ -1,7 +1,7 @@
 const restaurantModel = require('../models/restaurant.model');
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
-const {uploadImage} = require('../services/imagekit.service');
+const {uploadImage,deleteImage} = require('../services/imagekit.service');
 
 async function createRestaurant(req, res) {
     try {
@@ -106,6 +106,9 @@ async function deleteRestaurant(req, res) {
         const restaurant = await restaurantModel.findOneAndDelete({ _id: restaurantId });
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
+        }
+        if(restaurant.restaurantPicture){
+            await deleteImage(restaurant.restaurantPicture.fileId);
         }
         res.status(200).json({ message: "Restaurant deleted successfully" });
     } catch (error) {

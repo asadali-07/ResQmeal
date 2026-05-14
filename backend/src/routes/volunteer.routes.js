@@ -10,6 +10,6 @@ volunteerRouter.post('/', createAuthMiddleware(["volunteer"]), createVolunteer)
     .patch('/', createAuthMiddleware(["volunteer"]), updateVolunteer)
     .get('/available', createAuthMiddleware(["admin"]), getAllAvailableVolunteers)
     .get('/all', createAuthMiddleware(["admin"]), getAllVolunteers)
-    .delete('/:volunteerId', createAuthMiddleware(["admin"]), deleteVolunteer)
+    .delete('/:volunteerId', createAuthMiddleware(["admin"]), deleteVolunteer);
 
 module.exports = volunteerRouter;

@@ -1,7 +1,7 @@
 const ngoModel = require("../models/ngo.model");
 const restaurantModel = require("../models/restaurant.model");
 const foodModel = require("../models/food.model");
-const { uploadImage } = require("../services/imagekit.service");
+const { uploadImage, deleteImage } = require("../services/imagekit.service");
 
 
 async function createFood(req, res) {
@@ -162,6 +162,8 @@ async function deleteFood(req, res) {
                 message: "Only available food can be deleted"
             });
         }
+
+        await deleteImage(food.foodImage.fileId);
 
         await food.deleteOne();
 

@@ -1,5 +1,5 @@
 const messageModel = require("../models/message.model")
-const { uploadImage } = require("../services/imagekit.service")
+const { uploadImage,deleteImage } = require("../services/imagekit.service")
 const { getUserSocketId, io } = require("../socket/socket")
 
 
@@ -100,6 +100,9 @@ async function deleteMessage(req, res) {
             return res.status(404).json({
                 message: "Message not found or you are not the sender of the message"
             })
+        }
+        if(message.image){
+            await deleteImage(message.image.fileId)
         }
         await message.deleteOne();
         return res.status(200).json({

@@ -7,9 +7,9 @@ const {  createFood, updateFood, getAvailableFood, getFoodById,deleteFood } = re
 const foodRouter = express.Router();
 
 foodRouter.post('/',createAuthMiddleware(["restaurant"]),upload.single("foodImage"),createFood)
-foodRouter.patch('/:foodId',createAuthMiddleware(["restaurant"]),upload.single("foodImage"),updateFood)
-foodRouter.get('/available',createAuthMiddleware(["ngo", "volunteer"]),getAvailableFood)
-foodRouter.get('/:foodId',createAuthMiddleware(["ngo", "volunteer"]),getFoodById)
-foodRouter.delete('/:foodId',createAuthMiddleware(["restaurant"]),deleteFood)
+    .patch('/:foodId',createAuthMiddleware(["restaurant"]),upload.single("foodImage"),updateFood)
+    .get('/available',createAuthMiddleware(["ngo", "volunteer"]),getAvailableFood)
+    .get('/:foodId',createAuthMiddleware(["ngo", "volunteer"]),getFoodById)
+    .delete('/:foodId',createAuthMiddleware(["restaurant"]),deleteFood);
 
 module.exports = foodRouter;

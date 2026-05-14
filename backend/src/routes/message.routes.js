@@ -8,9 +8,9 @@ const { createAuthMiddleware } = require('../middlewares/auth.middleware');
 const messageRouter = express.Router();
 
 messageRouter.post('/send/userId',createAuthMiddleware(["restaurant", "ngo", "volunteer"]),upload.single('imageUrl'),sendMessage)
-messageRouter.get('/get',createAuthMiddleware(["restaurant", "ngo", "volunteer"]),getMessages)
-messageRouter.patch('/update/:messageId',createAuthMiddleware(["restaurant", "ngo", "volunteer"]),updatedMessage)
-messageRouter.delete('/delete/:messageId',createAuthMiddleware(["restaurant", "ngo", "volunteer"]),deleteMessage)
+    .get('/get',createAuthMiddleware(["restaurant", "ngo", "volunteer"]),getMessages)
+    .patch('/update/:messageId',createAuthMiddleware(["restaurant", "ngo", "volunteer"]),updatedMessage)
+    .delete('/delete/:messageId',createAuthMiddleware(["restaurant", "ngo", "volunteer"]),deleteMessage);
 
 
 

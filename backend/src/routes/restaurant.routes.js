@@ -10,6 +10,6 @@ restaurantRouter.post('/', upload.single('restaurantPicture'), createAuthMiddlew
     .get('/', createAuthMiddleware(["restaurant"]), getUserRestaurant)
     .patch('/', upload.single('restaurantPicture'), createAuthMiddleware(["restaurant"]), updateRestaurant)
     .delete('/:restaurantId', createAuthMiddleware(["admin"]), deleteRestaurant)
-    .get('/all', createAuthMiddleware(["admin"]), getAllRestaurants)
+    .get('/all', createAuthMiddleware(["admin"]), getAllRestaurants);
 
 module.exports = restaurantRouter;

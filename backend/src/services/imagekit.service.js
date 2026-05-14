@@ -23,4 +23,19 @@ async function uploadImage({ buffer, folder = '/ResQmeal' }) {
     };
 }
 
-module.exports = { uploadImage };
+async function deleteImage(fileId) {
+    try {
+
+        const response = await imagekit.deleteFile(fileId);
+
+        console.log("Image deleted successfully");
+        console.log(response);
+
+    } catch (error) {
+
+        console.log("Error deleting image:", error);
+
+    }
+}
+
+module.exports = { uploadImage, deleteImage };

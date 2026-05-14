@@ -28,7 +28,8 @@ async function createClaim(req, res) {
             food = await foodModel.findOneAndUpdate(
                 {
                     _id: foodId,
-                    status: 'available'
+                    status: 'available',
+                    expiryTime: { $gt: new Date() } 
                 },
                 {
                     $set: {
@@ -40,7 +41,6 @@ async function createClaim(req, res) {
                     session
                 }
             );
-
             if (!food) {
                 throw new Error('Food is not available for claim');
             }

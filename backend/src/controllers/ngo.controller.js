@@ -1,7 +1,7 @@
 const ngoModel = require("../models/ngo.model");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
-const {uploadImage} = require('../services/imagekit.service');
+const {uploadImage,deleteImage} = require('../services/imagekit.service');
 
 
 async function createNgo(req, res) {
@@ -107,6 +107,9 @@ async function deleteNgo(req, res) {
         const ngo = await ngoModel.findOneAndDelete({ _id: ngoId });
         if (!ngo) {
             return res.status(404).json({ message: "Ngo not found" });
+        }
+        if(ngo.ngoPicture){
+            await deleteImage(ngo.ngoPicture.fileId);
         }
         res.status(200).json({ message: "Ngo deleted successfully" });
     } catch (error) {
