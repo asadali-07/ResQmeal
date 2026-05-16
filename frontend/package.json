@@ -10,9 +10,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.3.0",
+    "@yudiel/react-qr-scanner": "^2.6.0",
+    "axios": "^1.16.1",
+    "lucide-react": "^1.14.0",
+    "mapbox-gl": "^3.23.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-hook-form": "^7.75.0",
+    "react-map-gl": "^8.1.1",
+    "react-qr-code": "^2.0.21",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.15.0",
+    "react-toastify": "^11.1.0",
+    "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

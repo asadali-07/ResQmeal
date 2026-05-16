@@ -1,5 +1,6 @@
 const messageModel = require("../models/message.model")
-const { uploadImage,deleteImage } = require("../services/imagekit.service")
+const { uploadImage, deleteImage } = require("../services/imagekit.service")
+const mongoose = require("mongoose")
 const { getUserSocketId, io } = require("../socket/socket")
 
 
@@ -14,20 +15,20 @@ async function sendMessage(req, res) {
         }
 
         const newMessage = await messageModel.create({
-            senderId : user.id,
-            receiverId : userId,
+            senderId: user.id,
+            receiverId: userId,
             text,
             image
         })
 
         let receiverSocketId = getUserSocketId(userId)
-        if(receiverSocketId){
-            io.to(receiverSocketId).emit("newMessage", newMessage) 
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("newMessage", newMessage)
         }
 
         return res.status(200).json({
-            message : "Sent the message successfully",
-            messageData : newMessage
+            message: "Sent the message successfully",
+            messageData: newMessage
         })
 
     } catch (error) {
@@ -101,7 +102,7 @@ async function deleteMessage(req, res) {
                 message: "Message not found or you are not the sender of the message"
             })
         }
-        if(message.image){
+        if (message.image) {
             await deleteImage(message.image.fileId)
         }
         await message.deleteOne();
@@ -115,4 +116,126 @@ async function deleteMessage(req, res) {
     }
 }
 
-module.exports = { sendMessage, getMessages, updatedMessage, deleteMessage }
+async function getMessagedUsers(req, res) {
+
+    try {
+
+        const currentUserId = new mongoose.Types.ObjectId(
+            req.user.id
+        );
+
+        const users = await messageModel.aggregate([
+
+            {
+                $match: {
+                    $or: [
+                        { senderId: currentUserId },
+                        { receiverId: currentUserId }
+                    ]
+                }
+            },
+
+            {
+                $project: {
+
+                    otherUser: {
+                        $cond: [
+                            {
+                                $eq: [
+                                    "$senderId",
+                                    currentUserId
+                                ]
+                            },
+
+                            "$receiverId",
+
+                            "$senderId"
+                        ]
+                    },
+
+                    createdAt: 1
+                }
+            },
+
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            },
+
+            {
+                $group: {
+
+                    _id: "$otherUser",
+
+                    latestMessageAt: {
+                        $first: "$createdAt"
+                    }
+                }
+            },
+
+            {
+                $lookup: {
+                    from: "users",
+
+                    localField: "_id",
+
+                    foreignField: "_id",
+
+                    as: "user"
+                }
+            },
+
+            {
+                $unwind: "$user"
+            },
+
+            {
+                $project: {
+
+                    _id: "$user._id",
+
+                    name: "$user.name",
+
+                    profileImage: "$user.profileImage",
+
+                    latestMessageAt: 1
+                }
+            },
+
+            {
+                $sort: {
+                    latestMessageAt: -1
+                }
+            }
+
+        ]);
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: "Messaged users fetched successfully",
+
+            users
+
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: "Error fetching users"
+
+        });
+
+    }
+}
+
+
+
+module.exports = { sendMessage, getMessages, updatedMessage, deleteMessage, getMessagedUsers }

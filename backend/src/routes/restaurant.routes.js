@@ -1,7 +1,7 @@
 const express = require('express');
 const {createAuthMiddleware} = require('../middlewares/auth.middleware');
 const { upload } = require('../middlewares/multer.middleware');
-const {createRestaurant, getAllRestaurants, updateRestaurant, getUserRestaurant, deleteRestaurant} = require('../controllers/restaurant.controller');
+const {createRestaurant, getAllRestaurants, updateRestaurant, getUserRestaurant, deleteRestaurant, getRestaurantById} = require('../controllers/restaurant.controller');
 
 
 const restaurantRouter = express.Router();
@@ -10,6 +10,7 @@ restaurantRouter.post('/', upload.single('restaurantPicture'), createAuthMiddlew
     .get('/', createAuthMiddleware(["restaurant"]), getUserRestaurant)
     .patch('/', upload.single('restaurantPicture'), createAuthMiddleware(["restaurant"]), updateRestaurant)
     .delete('/:restaurantId', createAuthMiddleware(["admin"]), deleteRestaurant)
-    .get('/all', createAuthMiddleware(["admin"]), getAllRestaurants);
+    .get('/all', createAuthMiddleware(["admin"]), getAllRestaurants)
+    .get('/:restaurantId',createAuthMiddleware(["ngo","volunteer","admin"]),getRestaurantById);
 
 module.exports = restaurantRouter;

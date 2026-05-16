@@ -1,11 +1,11 @@
-const { io, getUserSocketId } = require("./socket.service");
+const { getUserSocketId, io } = require("../socket/socket");
 
 
 async function sendNotification(payload) {
     
 
     try {
-        const receiverSocketId = getUserSocketId(payload.receiverId);
+        const receiverSocketId = getUserSocketId (payload.receiverId);
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("notification", payload);
         }

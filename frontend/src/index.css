@@ -1,1 +1,58 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap");
+
+:root {
+	--bg: #f6f2ea;
+	--bg-soft: #fff7ee;
+	--ink: #1f1b16;
+	--muted: #5b5147;
+	--accent: #ff6b35;
+	--accent-2: #1d8f85;
+	--accent-3: #f2b705;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: "Space Grotesk", system-ui, sans-serif;
+	color: var(--ink);
+	background:
+		radial-gradient(circle at top right, rgba(255, 107, 53, 0.14), transparent 45%),
+		radial-gradient(circle at 20% 20%, rgba(29, 143, 133, 0.16), transparent 45%),
+		linear-gradient(135deg, var(--bg), var(--bg-soft));
+	min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	font-family: "Fraunces", "Times New Roman", serif;
+	letter-spacing: -0.01em;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.font-display {
+	font-family: "Fraunces", "Times New Roman", serif;
+}
+
+.glass-panel {
+	background: rgba(255, 255, 255, 0.7);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	box-shadow: 0 20px 60px rgba(22, 18, 12, 0.08);
+	backdrop-filter: blur(10px);
+}
+
+.grid-fade {
+	background-image:
+		linear-gradient(rgba(31, 27, 22, 0.06) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(31, 27, 22, 0.06) 1px, transparent 1px);
+	background-size: 26px 26px;
+}

@@ -159,6 +159,166 @@ async function createClaim(req, res) {
 
 }
 
+async function getNgoClaimedFoods(req, res) {
+    try {
+        const ngoId = req.user.id;
+
+        const claims = await claimModel
+            .find({ ngoId, status: { $in: ['pending', 'accepted', 'picked_up'] } })
+            .sort({ createdAt: -1 })
+            .populate({
+                path: "foodId",
+                populate: {
+                    path: "restaurantId",
+                    select: "restaurantName address openingTime closingTime location"
+                }
+            });
+
+        return res.status(200).json({
+            success: true,
+            message: "Claimed foods fetched successfully",
+            claims
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching claimed foods"
+        });
+    }
+}
+
+async function getRestaurantClaims(req, res) {
+    try {
+        const restaurantId = req.user.id;
+
+        const claims = await claimModel
+            .find({
+                restaurantId,
+                status: { $in: ['accepted', 'picked_up', 'delivered'] }
+            })
+            .sort({ createdAt: -1 })
+            .populate({
+                path: "foodId",
+                populate: {
+                    path: "restaurantId",
+                    select: "restaurantName address openingTime closingTime location"
+                }
+            });
+
+        return res.status(200).json({
+            success: true,
+            message: "Restaurant claims fetched successfully",
+            claims
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching restaurant claims"
+        });
+    }
+}
+
+async function getVolunteerAcceptedClaims(req, res) {
+    try {
+        const volunteerUserId = req.user.id;
+        
+
+        const claims = await claimModel
+            .find({
+                volunteerId: req.user.id,
+                status: { $in: ['accepted', 'picked_up', 'delivered', 'cancelled'] }
+            })
+            .sort({ acceptedAt: -1, createdAt: -1 })
+            .populate({
+                path: "foodId",
+                populate: {
+                    path: "restaurantId",
+                    select: "restaurantName address openingTime closingTime location"
+                }
+            });
+
+        return res.status(200).json({
+            success: true,
+            message: "Volunteer accepted claims fetched successfully",
+            claims
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching volunteer accepted claims"
+        });
+    }
+}
+
+async function getPendingClaims(req, res) {
+    try {
+        const volunteer = await volunteerModel.findOne({
+            userId: req.user.id,
+            isAvailable: true
+        });
+
+        if (!volunteer) {
+            return res.status(404).json({
+                success: false,
+                message: "Available volunteer profile not found"
+            });
+        }
+
+        const nearbyFoods = await foodModel.find({
+            status: "pending",
+            expiryTime: { $gt: new Date() },
+            location: {
+                $near: {
+                    $geometry: volunteer.currentLocation,
+                    $maxDistance: 5000
+                }
+            }
+        }).select("_id");
+
+        const foodIds = nearbyFoods.map((food) => food._id);
+
+        if (!foodIds.length) {
+            return res.status(200).json({
+                success: true,
+                message: "Pending claims fetched successfully",
+                claims: []
+            });
+        }
+
+        const claims = await claimModel.find({
+            status: "pending",
+            foodId: { $in: foodIds }
+        })
+            .sort({ createdAt: -1 })
+            .populate({
+                path: "foodId",
+                populate: {
+                    path: "restaurantId",
+                    select: "restaurantName address openingTime closingTime location"
+                }
+            });
+
+        return res.status(200).json({
+            success: true,
+            message: "Pending claims fetched successfully",
+            claims
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred while fetching pending claims"
+        });
+    }
+}
+
 
 async function acceptClaim(req, res) {
 
@@ -659,6 +819,14 @@ async function cancelClaim(req, res) {
 module.exports = {
 
     createClaim,
+
+    getNgoClaimedFoods,
+
+    getRestaurantClaims,
+
+    getVolunteerAcceptedClaims,
+
+    getPendingClaims,
 
     acceptClaim,
 

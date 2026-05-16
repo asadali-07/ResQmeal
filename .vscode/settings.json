@@ -1,0 +1,8 @@
+{
+    "geminicodeassist.agentDebugMode": true,
+    "geminicodeassist.agentYoloMode": true,
+    "geminicodeassist.codeGenerationPaneViewEnabled": true,
+    "geminicodeassist.project": "",
+    "geminicodeassist.verboseLogging": true,
+    "geminicodeassist.inlineSuggestions.nextEditPredictions": true
+}

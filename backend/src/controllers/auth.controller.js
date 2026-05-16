@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const { uploadImage } = require("../services/imagekit.service")
 const { sendEmail } = require("../services/email.service")
 const { redis } = require("../db/redis")
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 
 async function registerController(req, res) {
