@@ -1,8 +1,13 @@
 require('dotenv').config();
 const connectDB = require('./src/db/db');
-const {server} = require('./src/socket/socket')
+const {initSocket} = require('./src/socket/socket')
 const expireFoodJob = require('./src/cron/expireFood.job');
+const app = require('./src/app');
 
+const http = require('http');
+const server = http.createServer(app)
+
+initSocket(server);
 
 connectDB();
 expireFoodJob();

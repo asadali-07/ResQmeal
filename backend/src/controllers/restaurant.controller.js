@@ -116,4 +116,22 @@ async function deleteRestaurant(req, res) {
     }
 }
 
-module.exports = { createRestaurant, getAllRestaurants, getUserRestaurant, updateRestaurant, deleteRestaurant };
+async function getRestaurantById(req,res){
+    try {
+        const {restaurantId} = req.params
+        const restaurant = await restaurantModel.findOne({_id:restaurantId})
+        if(!restaurant){
+            return res.status(404).json({
+                message : "Restaurant not found"
+            })
+        }
+        return res.status(200).json({
+            message : "Fetched Restaurant information Successfully",
+            restaurant
+        })
+    } catch (error) {
+        return res.status(400).json({message: error.message})
+    }
+}
+
+module.exports = { createRestaurant, getAllRestaurants, getUserRestaurant, updateRestaurant, deleteRestaurant,getRestaurantById };

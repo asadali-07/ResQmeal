@@ -2,6 +2,7 @@ const ngoModel = require("../models/ngo.model");
 const restaurantModel = require("../models/restaurant.model");
 const foodModel = require("../models/food.model");
 const { uploadImage, deleteImage } = require("../services/imagekit.service");
+const { sendNotification } = require("../services/notification.service");
 
 
 async function createFood(req, res) {
@@ -179,5 +180,21 @@ async function deleteFood(req, res) {
     }
 }
 
+async function getAllFoodListing(req, res) {
+    try {
+        const restaurant = await restaurantModel.findOne({ userId: req.user.id });
+        if (!restaurant) {
+            return res.status(404).json({ message: "Restaurant not found" });
+        }
+        const foods = await foodModel.find({
+            restaurantId: restaurant._id,
+            status: { $in: ["available", "pending"] }
+        });
+        res.status(200).json({ message: "Food listings retrieved successfully", foods });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
 
-module.exports = { createFood, updateFood, getAvailableFood, getFoodById, deleteFood };
+
+module.exports = { createFood, updateFood, getAvailableFood, getFoodById, deleteFood, getAllFoodListing };

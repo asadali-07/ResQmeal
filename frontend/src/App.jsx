@@ -1,9 +1,15 @@
-import React from 'react'
+import { BrowserRouter } from "react-router-dom";
+import AppShell from "./components/layout/AppShell";
+import AppRoutes from "./routes/AppRoutes";
 
 const App = () => {
   return (
-    <div className='bg-red-500'>App</div>
-  )
-}
+    <BrowserRouter>
+      <AppShell>
+        <AppRoutes />
+      </AppShell>
+    </BrowserRouter>
+  );
+};
 
-export default App
+export default App;
