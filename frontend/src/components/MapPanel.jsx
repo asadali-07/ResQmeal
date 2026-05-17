@@ -28,7 +28,7 @@ const MapPanel = ({
             <div className="glass-panel grid place-items-center rounded-3xl border border-white/70 p-10 text-center">
                 <div>
                     <h3 className="font-display text-xl">Mapbox token missing</h3>
-                    <p className="mt-2 text-sm text-[var(--muted)]">
+                    <p className="mt-2 text-sm text-(--muted)">
                         Add VITE_MAPBOX_TOKEN to your frontend .env to render maps.
                     </p>
                 </div>
@@ -43,7 +43,7 @@ const MapPanel = ({
                     <div>
                         {title && <h3 className="font-display text-lg">{title}</h3>}
                         {description && (
-                            <p className="text-sm text-[var(--muted)]">{description}</p>
+                            <p className="text-sm text-(--muted)">{description}</p>
                         )}
                     </div>
                     {headerActions ? <div className="flex flex-wrap gap-2">{headerActions}</div> : null}
@@ -69,7 +69,7 @@ const MapPanel = ({
                         >
                             <div className="relative">
                                 {marker.isActive && marker.title ? (
-                                    <div className="pointer-events-none absolute -top-11 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[var(--ink)] px-3 py-1 text-[11px] font-semibold text-white shadow-xl">
+                                    <div className="pointer-events-none absolute -top-11 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-(--ink) px-3 py-1 text-[11px] font-semibold text-white shadow-xl">
                                         {marker.title}
                                     </div>
                                 ) : null}
@@ -101,7 +101,7 @@ const MapPanel = ({
                     <div className="pointer-events-none absolute bottom-4 left-4 rounded-2xl border border-white/80 bg-white/88 px-4 py-3 shadow-xl backdrop-blur">
                         <div className="flex flex-wrap gap-3">
                             {legendItems.map((item) => (
-                                <div key={item.label} className="flex items-center gap-2 text-xs font-semibold text-[var(--ink)]">
+                                <div key={item.label} className="flex items-center gap-2 text-xs font-semibold text-(--ink)">
                                     <span
                                         className="h-3 w-3 rounded-full border border-white shadow-sm"
                                         style={{ background: item.color }}

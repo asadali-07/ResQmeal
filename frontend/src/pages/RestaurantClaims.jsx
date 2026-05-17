@@ -57,6 +57,11 @@ const RestaurantClaims = () => {
         [restaurantClaims]
     );
 
+    const cancelledClaims = useMemo(
+        () => (restaurantClaims || []).filter((claimItem) => claimItem.status === "cancelled"),
+        [restaurantClaims]
+    );
+
     const formatDateTime = (value) => {
         if (!value) {
             return "-";
@@ -89,7 +94,9 @@ const RestaurantClaims = () => {
                         className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${
                             claimItem.status === "delivered"
                                 ? "bg-[var(--accent)]/15 text-[var(--accent)]"
-                                : "bg-[var(--accent-2)]/15 text-[var(--accent-2)]"
+                                : claimItem.status === "cancelled"
+                                  ? "bg-red-100 text-red-500"
+                                  : "bg-[var(--accent-2)]/15 text-[var(--accent-2)]"
                         }`}
                     >
                         {claimItem.status}
@@ -256,6 +263,23 @@ const RestaurantClaims = () => {
                     {!completedClaims.length ? (
                         <p className="text-sm text-[var(--muted)]">
                             Delivered claim history will appear here over time.
+                        </p>
+                    ) : null}
+                </div>
+            </div>
+            <div className="glass-panel rounded-3xl border border-white/70 p-6">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <h3 className="font-display text-xl">Cancelled history</h3>
+                        <p className="text-sm text-[var(--muted)]">Cancelled claim requests for your restaurant.</p>
+                    </div>
+                    <span className="text-sm text-[var(--muted)]">{cancelledClaims.length} cancelled</span>
+                </div>
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    {cancelledClaims.map(renderClaimCard)}
+                    {!cancelledClaims.length ? (
+                        <p className="text-sm text-[var(--muted)]">
+                            Cancelled claim history will appear here over time.
                         </p>
                     ) : null}
                 </div>

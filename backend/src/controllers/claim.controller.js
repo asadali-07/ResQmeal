@@ -164,7 +164,7 @@ async function getNgoClaimedFoods(req, res) {
         const ngoId = req.user.id;
 
         const claims = await claimModel
-            .find({ ngoId, status: { $in: ['pending', 'accepted', 'picked_up'] } })
+            .find({ ngoId, status: { $in: ['pending', 'accepted', 'picked_up','delivered','cancelled'] } })
             .sort({ createdAt: -1 })
             .populate({
                 path: "foodId",
@@ -196,7 +196,7 @@ async function getRestaurantClaims(req, res) {
         const claims = await claimModel
             .find({
                 restaurantId,
-                status: { $in: ['accepted', 'picked_up', 'delivered'] }
+                status: { $in: ['pending', 'accepted', 'picked_up','delivered','cancelled'] }
             })
             .sort({ createdAt: -1 })
             .populate({

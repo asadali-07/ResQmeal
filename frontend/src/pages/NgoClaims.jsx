@@ -17,6 +17,8 @@ const NgoClaims = () => {
         (state) => state.notificationReducer || { items: [] }
     );
 
+    console.log(claimedFoods);
+
     useEffect(() => {
         if (!userInfo) {
             dispatch(getUserInfo());

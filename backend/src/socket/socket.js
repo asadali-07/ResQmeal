@@ -2,7 +2,7 @@ const { Server } = require('socket.io')
 const express = require('express')
 
 let userSocketMap = {}
-let io
+let io=null;
 
 function initSocket(server) {
 
@@ -64,5 +64,6 @@ function getUserSocketId(userId) {
     return userSocketMap[userId]
 }
 
+const getIO = () => io
 
-module.exports = { io, initSocket, getUserSocketId }
+module.exports = { getIO, initSocket, getUserSocketId }

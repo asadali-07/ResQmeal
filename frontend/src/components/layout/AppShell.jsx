@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { MapPinned, Store, HandHeart, Truck, MessageSquare, LogIn, UserPlus, Package, Bell, UserCircle } from "lucide-react";
+import { MapPinned, HandHeart, Truck, MessageSquare, LogIn, UserPlus, Package, Bell, UserCircle } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import { getUserInfo, logoutUser } from "../../store/userSlice";
 import { clearNotifications } from "../../store/notificationSlice";
@@ -54,12 +54,12 @@ const AppShell = ({ children }) => {
             <header className="sticky top-0 z-50 border-b border-white/60 bg-white/70 backdrop-blur">
                 <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 md:flex-nowrap">
                     <div className="flex items-center gap-3">
-                        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--accent)] text-white shadow-lg shadow-orange-200">
+                        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-(--accent) text-white shadow-lg shadow-orange-200">
                             <MapPinned className="h-5 w-5" />
                         </div>
                         <div>
                             <p className="font-display text-xl">ResQmeal</p>
-                            <p className="text-xs text-[var(--muted)]">Local surplus to shared meals</p>
+                            <p className="text-xs text-(--muted)">Local surplus to shared meals</p>
                         </div>
                     </div>
 
@@ -73,8 +73,8 @@ const AppShell = ({ children }) => {
                                     className={({ isActive }) =>
                                         `flex items-center gap-2 rounded-full px-4 py-2 transition ${
                                             isActive
-                                                ? "bg-[var(--accent-2)] text-white"
-                                                : "bg-white/70 text-[var(--ink)] hover:bg-white"
+                                                ? "bg-(--accent-2) text-white"
+                                                : "bg-white/70 text-(--ink) hover:bg-white"
                                         }`
                                     }
                                 >
@@ -91,12 +91,12 @@ const AppShell = ({ children }) => {
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowNotifications((value) => !value)}
-                                        className="relative grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/80 text-[var(--ink)]"
+                                        className="relative grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/80 text-(--ink)"
                                         title="Notifications"
                                     >
                                         <Bell className="h-4 w-4" />
                                         {notifications.length ? (
-                                            <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[var(--accent)] px-1 text-[10px] font-semibold text-white">
+                                            <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-(--accent) px-1 text-[10px] font-semibold text-white">
                                                 {notifications.length}
                                             </span>
                                         ) : null}
@@ -107,7 +107,7 @@ const AppShell = ({ children }) => {
                                                 <p className="font-display text-lg">Notifications</p>
                                                 <button
                                                     onClick={() => dispatch(clearNotifications())}
-                                                    className="text-xs font-semibold text-[var(--accent)]"
+                                                    className="text-xs font-semibold text-(--accent)"
                                                 >
                                                     Clear
                                                 </button>
@@ -118,16 +118,16 @@ const AppShell = ({ children }) => {
                                                         key={item.id}
                                                         className="rounded-2xl border border-orange-100 bg-orange-50/60 p-3 text-sm"
                                                     >
-                                                        <p className="font-semibold text-[var(--ink)]">
+                                                        <p className="font-semibold text-(--ink)">
                                                             {item.title || item.message || item.type || "Update"}
                                                         </p>
-                                                        <p className="mt-1 text-xs text-[var(--muted)]">
+                                                        <p className="mt-1 text-xs text-(--muted)">
                                                             {item.message || item.type || "notification"}
                                                         </p>
                                                     </div>
                                                 ))}
                                                 {!notifications.length && (
-                                                    <p className="text-sm text-[var(--muted)]">
+                                                    <p className="text-sm text-(--muted)">
                                                         No notifications yet.
                                                     </p>
                                                 )}
@@ -137,13 +137,13 @@ const AppShell = ({ children }) => {
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm font-semibold">{userInfo?.name || "Member"}</p>
-                                    <p className="text-xs uppercase text-[var(--muted)]">
+                                    <p className="text-xs uppercase text-(--muted)">
                                         {userInfo?.role || "role"}
                                     </p>
                                 </div>
                                 <button
                                     onClick={handleLogout}
-                                    className="rounded-full border border-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                                    className="rounded-full border border-(--accent) px-4 py-2 text-sm font-semibold text-(--accent) hover:bg-(--accent) hover:text-white"
                                 >
                                     Log out
                                 </button>
@@ -152,14 +152,14 @@ const AppShell = ({ children }) => {
                             <div className="flex items-center gap-2">
                                 <NavLink
                                     to="/login"
-                                    className="flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm font-semibold text-[var(--ink)]"
+                                    className="flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm font-semibold text-(--ink)"
                                 >
                                     <LogIn className="h-4 w-4" />
                                     Login
                                 </NavLink>
                                 <NavLink
                                     to="/register"
-                                    className="flex items-center gap-2 rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-200"
+                                    className="flex items-center gap-2 rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-200"
                                 >
                                     <UserPlus className="h-4 w-4" />
                                     Register

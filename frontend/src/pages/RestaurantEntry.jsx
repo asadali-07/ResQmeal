@@ -25,7 +25,7 @@ const RestaurantEntry = () => {
     if (!userInfo && userLoading) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Checking your account...</p>
+                <p className="text-sm text-(--muted)">Checking your account...</p>
             </div>
         );
     }

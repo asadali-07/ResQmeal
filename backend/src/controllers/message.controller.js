@@ -1,7 +1,7 @@
 const messageModel = require("../models/message.model")
 const { uploadImage, deleteImage } = require("../services/imagekit.service")
 const mongoose = require("mongoose")
-const { getUserSocketId, io } = require("../socket/socket")
+const { getUserSocketId, getIO } = require("../socket/socket")
 
 
 async function sendMessage(req, res) {
@@ -20,10 +20,9 @@ async function sendMessage(req, res) {
             text,
             image
         })
-
         let receiverSocketId = getUserSocketId(userId)
         if (receiverSocketId) {
-            io.to(receiverSocketId).emit("newMessage", newMessage)
+            getIO().to(receiverSocketId).emit("newMessage", newMessage)
         }
 
         return res.status(200).json({
@@ -45,8 +44,8 @@ async function getMessages(req, res) {
 
         const messages = await messageModel.find({
             $or: [
-                { senderId: user._id, receiverId: userId },
-                { senderId: userId, receiverId: user._id }
+                { senderId: user.id, receiverId: userId },
+                { senderId: userId, receiverId: user.id }
             ]
         })
         if (!messages) {
@@ -72,7 +71,7 @@ async function updatedMessage(req, res) {
         const user = req.user
         const { messageId } = req.params
         const { text } = req.body
-        const message = await messageModel.findOne({ _id: messageId, senderId: user._id })
+        const message = await messageModel.findOne({ _id: messageId, senderId: user.id })
         if (!message) {
             return res.status(404).json({
                 message: "Message not found or you are not the sender of the message"
@@ -96,7 +95,7 @@ async function deleteMessage(req, res) {
     try {
         const user = req.user
         const { messageId } = req.params
-        const message = await messageModel.findOne({ _id: messageId, senderId: user._id })
+        const message = await messageModel.findOne({ _id: messageId, senderId: user.id })
         if (!message) {
             return res.status(404).json({
                 message: "Message not found or you are not the sender of the message"
