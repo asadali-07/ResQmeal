@@ -83,7 +83,7 @@ const RestaurantInfo = () => {
     if (loading && !restaurant) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Loading restaurant information...</p>
+                <p className="text-sm text-(--muted)">Loading restaurant information...</p>
             </div>
         );
     }
@@ -91,12 +91,12 @@ const RestaurantInfo = () => {
     if (!restaurant) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-sm text-(--muted)">
                     {error || "Restaurant information is not available for this pickup yet."}
                 </p>
                 <NavLink
                     to="/"
-                    className="mt-4 inline-flex rounded-full border border-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent)]"
+                    className="mt-4 inline-flex rounded-full border border-(--accent) px-5 py-3 text-sm font-semibold text-(--accent)"
                 >
                     Back to home
                 </NavLink>
@@ -108,13 +108,13 @@ const RestaurantInfo = () => {
         <div className="space-y-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-(--accent)">
                         Pickup partner
                     </p>
                     <h2 className="mt-2 font-display text-3xl">
                         {restaurant.restaurantName || "Restaurant information"}
                     </h2>
-                    <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
+                    <p className="mt-2 max-w-2xl text-sm text-(--muted)">
                         Review pickup details before coordinating the food handoff.
                     </p>
                 </div>
@@ -127,14 +127,14 @@ const RestaurantInfo = () => {
                         }
                         navigate(-1);
                     }}
-                    className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+                    className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
                 >
                     Back
                 </button>
             </div>
 
             {error && fallbackRestaurant ? (
-                <div className="glass-panel rounded-3xl border border-white/70 p-5 text-sm text-[var(--muted)]">
+                <div className="glass-panel rounded-3xl border border-white/70 p-5 text-sm text-(--muted)">
                     Showing the restaurant details from the selected food card because the live fetch did not complete:
                     {" "}
                     {error}
@@ -151,14 +151,14 @@ const RestaurantInfo = () => {
                         />
                     ) : (
                         <div className="grid h-72 place-items-center bg-[linear-gradient(135deg,rgba(255,122,26,0.18),rgba(35,155,86,0.16))]">
-                            <span className="font-display text-6xl text-[var(--accent)]">
+                            <span className="font-display text-6xl text-(--accent)">
                                 {(restaurant.restaurantName || "R").slice(0, 1).toUpperCase()}
                             </span>
                         </div>
                     )}
                     <div className="p-6">
                         <h3 className="font-display text-xl">About this restaurant</h3>
-                        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+                        <p className="mt-3 text-sm leading-6 text-(--muted)">
                             {restaurant.restaurantDescription || "No description has been added yet."}
                         </p>
                         {userInfo?.role === "ngo" || userInfo?.role === "volunteer" ? (
@@ -166,14 +166,14 @@ const RestaurantInfo = () => {
                                 type="button"
                                 onClick={handleMessageRestaurant}
                                 disabled={!canMessageRestaurant}
-                                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--accent-2)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-(--accent-2) px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                             >
                                 <MessageCircle className="h-4 w-4" />
                                 Message restaurant
                             </button>
                         ) : null}
                         {userInfo?.role === "ngo" || userInfo?.role === "volunteer" && !restaurantOwnerId ? (
-                            <p className="mt-3 text-xs text-[var(--muted)]">
+                            <p className="mt-3 text-xs text-(--muted)">
                                 Messaging will appear once this restaurant includes its owner account ID.
                             </p>
                         ) : null}
@@ -185,26 +185,20 @@ const RestaurantInfo = () => {
                         <h3 className="font-display text-xl">Pickup details</h3>
                         <div className="mt-5 grid gap-3 text-sm">
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                                <span className="text-[var(--muted)]">Opening time</span>
-                                <span className="font-semibold text-[var(--ink)]">
+                                <span className="text-(--muted)">Opening time</span>
+                                <span className="font-semibold text-(--ink)">
                                     {restaurant.openingTime || "-"}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                                <span className="text-[var(--muted)]">Closing time</span>
-                                <span className="font-semibold text-[var(--ink)]">
+                                <span className="text-(--muted)">Closing time</span>
+                                <span className="font-semibold text-(--ink)">
                                     {restaurant.closingTime || "-"}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                                <span className="text-[var(--muted)]">Food license</span>
-                                <span className="font-semibold text-[var(--ink)]">
-                                    {restaurant.foodLicenseNumber || "-"}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                                <span className="text-[var(--muted)]">Total Donations</span>
-                                <span className="font-semibold text-[var(--ink)]">
+                                <span className="text-(--muted)">Total Donations</span>
+                                <span className="font-semibold text-(--ink)">
                                     {restaurant.totalDonations || "0"}
                                 </span>
                             </div>
@@ -213,24 +207,24 @@ const RestaurantInfo = () => {
 
                     <div className="glass-panel rounded-3xl border border-white/70 p-6">
                         <h3 className="font-display text-xl">Address</h3>
-                        <p className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm leading-6 text-[var(--muted)]">
+                        <p className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm leading-6 text-(--muted)">
                             {address || "Address is not available."}
                         </p>
                         {restaurant.location?.coordinates?.length === 2 ? (
                             <div className="mt-4 grid gap-3 sm:grid-cols-2">
                                 <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-(--muted)">
                                         Latitude
                                     </p>
-                                    <p className="mt-2 font-semibold text-[var(--ink)]">
+                                    <p className="mt-2 font-semibold text-(--ink)">
                                         {restaurant.location.coordinates[1]}
                                     </p>
                                 </div>
                                 <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-(--muted)">
                                         Longitude
                                     </p>
-                                    <p className="mt-2 font-semibold text-[var(--ink)]">
+                                    <p className="mt-2 font-semibold text-(--ink)">
                                         {restaurant.location.coordinates[0]}
                                     </p>
                                 </div>

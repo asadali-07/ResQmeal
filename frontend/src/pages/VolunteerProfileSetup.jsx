@@ -60,7 +60,7 @@ const VolunteerProfileSetup = () => {
         <div className="max-w-2xl">
             <div className="glass-panel rounded-3xl border border-white/70 p-6">
                 <h2 className="font-display text-3xl">Create volunteer profile</h2>
-                <p className="mt-2 text-sm text-[var(--muted)]">
+                <p className="mt-2 text-sm text-(--muted)">
                     Set your vehicle and live location to accept nearby pickups.
                 </p>
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
@@ -99,11 +99,11 @@ const VolunteerProfileSetup = () => {
                         <button
                             type="button"
                             onClick={fillLocation}
-                            className="rounded-full border border-[var(--accent-2)] px-4 py-2 text-sm font-semibold text-[var(--accent-2)]"
+                            className="rounded-full border border-(--accent-2) px-4 py-2 text-sm font-semibold text-(--accent-2)"
                         >
                             Use my location
                         </button>
-                        {geoStatus && <span className="text-xs text-[var(--muted)]">{geoStatus}</span>}
+                        {geoStatus && <span className="text-xs text-(--muted)">{geoStatus}</span>}
                     </div>
                     <label className="flex items-center gap-2 text-sm">
                         <input type="checkbox" {...register("isAvailable")} />
@@ -112,7 +112,7 @@ const VolunteerProfileSetup = () => {
                     {error && <p className="text-sm text-red-500">{error}</p>}
                     <button
                         type="submit"
-                        className="w-full rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                        className="w-full rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white"
                         disabled={loading}
                     >
                         {loading

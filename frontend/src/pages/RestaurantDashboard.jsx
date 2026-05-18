@@ -42,7 +42,6 @@ const RestaurantDashboard = () => {
         pincode: restaurant.address?.pincode || "",
         country: restaurant.address?.country || "India",
       });
-      setIsEditing(false);
     }
   }, [restaurant, reset]);
 
@@ -64,12 +63,15 @@ const RestaurantDashboard = () => {
         country: values.country,
       },
     };
-
+    let result;
     if (restaurant) {
-      await dispatch(updateRestaurant(payload));
+      result = await dispatch(updateRestaurant(payload));
     } else {
-      await dispatch(createRestaurant(payload));
+      result = await dispatch(createRestaurant(payload));
     }
+    if (result?.meta?.requestStatus === "fulfilled") {
+    setIsEditing(false);
+  }
   };
 
   const marker = useMemo(() => {

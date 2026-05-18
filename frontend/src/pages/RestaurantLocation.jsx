@@ -69,7 +69,7 @@ const RestaurantLocation = () => {
     if (!userInfo && userLoading) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Checking your account...</p>
+                <p className="text-sm text-(--muted)">Checking your account...</p>
             </div>
         );
     }
@@ -77,10 +77,10 @@ const RestaurantLocation = () => {
     if (!userInfo) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Please login to access the pickup map.</p>
+                <p className="text-sm text-(--muted)">Please login to access the pickup map.</p>
                 <NavLink
                     to="/login"
-                    className="mt-4 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                    className="mt-4 inline-flex rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white"
                 >
                     Go to login
                 </NavLink>
@@ -91,10 +91,10 @@ const RestaurantLocation = () => {
     if (userInfo.role !== "restaurant") {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">This space is reserved for restaurant partners.</p>
+                <p className="text-sm text-(--muted)">This space is reserved for restaurant partners.</p>
                 <NavLink
                     to="/"
-                    className="mt-4 inline-flex rounded-full border border-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent)]"
+                    className="mt-4 inline-flex rounded-full border border-(--accent) px-5 py-3 text-sm font-semibold text-(--accent)"
                 >
                     Back to home
                 </NavLink>
@@ -107,13 +107,13 @@ const RestaurantLocation = () => {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 className="font-display text-3xl">Pickup location</h2>
-                    <p className="text-sm text-[var(--muted)]">
+                    <p className="text-sm text-(--muted)">
                         Review the exact map pin NGOs and volunteers use for pickup routing.
                     </p>
                 </div>
                 <Link
                     to="/account"
-                    className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+                    className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
                 >
                     Back to account
                 </Link>
@@ -135,32 +135,32 @@ const RestaurantLocation = () => {
                         <div className="mt-4 space-y-3 text-sm">
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                 <span>Restaurant</span>
-                                <span className="font-semibold text-[var(--ink)]">
+                                <span className="font-semibold text-(--ink)">
                                     {restaurant.restaurantName || "-"}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                 <span>Pickup window</span>
-                                <span className="font-semibold text-[var(--ink)]">
+                                <span className="font-semibold text-(--ink)">
                                     {restaurant.openingTime && restaurant.closingTime
                                         ? `${restaurant.openingTime} - ${restaurant.closingTime}`
                                         : "-"}
                                 </span>
                             </div>
                             {address ? (
-                                <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-[var(--muted)]">
+                                <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-(--muted)">
                                     {address}
                                 </div>
                             ) : null}
                             <Link
                                 to="/restaurant"
-                                className="inline-flex w-full items-center justify-center rounded-full border border-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent)]"
+                                className="inline-flex w-full items-center justify-center rounded-full border border-(--accent) px-4 py-2 text-sm font-semibold text-(--accent)"
                             >
                                 Edit restaurant profile
                             </Link>
                         </div>
                     ) : (
-                        <p className="mt-3 text-sm text-[var(--muted)]">
+                        <p className="mt-3 text-sm text-(--muted)">
                             {loading ? "Loading pickup location..." : "Restaurant profile not found yet."}
                         </p>
                     )}

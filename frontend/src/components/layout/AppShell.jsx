@@ -68,13 +68,13 @@ const AppShell = ({ children }) => {
   return (
     <>
       {showClearModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-99 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-[var(--ink)]">
+            <h3 className="text-lg font-bold text-(--ink)">
               Clear notifications?
             </h3>
 
-            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            <p className="mt-3 text-sm leading-6 text-(--muted)">
               Clearing notifications will remove all claim tracking and you will
               no longer be able to generate pickup or delivery QR codes.
             </p>

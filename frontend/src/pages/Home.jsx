@@ -31,13 +31,13 @@ const Home = () => {
             <section className="glass-panel grid-fade rounded-3xl border border-white/70 px-6 py-12 md:px-12">
                 <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
                     <div>
-                        <p className="text-sm uppercase tracking-[0.2em] text-[var(--muted)]">
+                        <p className="text-sm uppercase tracking-[0.2em] text-(--muted)">
                             Map-based rescue flow
                         </p>
                         <h1 className="mt-4 text-4xl md:text-5xl">
                             Rescue surplus food in real-time.
                         </h1>
-                        <p className="mt-4 text-base text-[var(--muted)] md:text-lg">
+                        <p className="mt-4 text-base text-(--muted) md:text-lg">
                             ResQmeal connects restaurants, NGOs, and volunteers to turn leftover
                             meals into delivered nourishment. See live pickup zones, claim in a
                             moment, and coordinate delivery with verified tokens.
@@ -45,13 +45,13 @@ const Home = () => {
                         <div className="mt-6 flex flex-wrap gap-3">
                             <NavLink
                                 to="/register"
-                                className="rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200"
+                                className="rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200"
                             >
                                 Start as a partner
                             </NavLink>
                             <NavLink
                                 to="/ngo"
-                                className="rounded-full border border-[var(--accent-2)] px-5 py-3 text-sm font-semibold text-[var(--accent-2)]"
+                                className="rounded-full border border-(--accent-2) px-5 py-3 text-sm font-semibold text-(--accent-2)"
                             >
                                 View live map
                             </NavLink>
@@ -59,28 +59,28 @@ const Home = () => {
                     </div>
                     <div className="rounded-3xl border border-white/70 bg-white/70 p-6">
                         <div className="flex items-center gap-3">
-                            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--accent-2)] text-white">
+                            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-(--accent-2) text-white">
                                 <MapPinned className="h-5 w-5" />
                             </div>
                             <div>
                                 <p className="font-display text-lg">Live pickup pulse</p>
-                                <p className="text-sm text-[var(--muted)]">
+                                <p className="text-sm text-(--muted)">
                                     Track activity near your community.
                                 </p>
                             </div>
                         </div>
-                        <div className="mt-6 space-y-4 text-sm text-[var(--muted)]">
+                        <div className="mt-6 space-y-4 text-sm text-(--muted)">
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                 <span>Open listings</span>
-                                <span className="font-semibold text-[var(--ink)]">Live map</span>
+                                <span className="font-semibold text-(--ink)">Live map</span>
                             </div>
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                 <span>Claims in motion</span>
-                                <span className="font-semibold text-[var(--ink)]">Token verified</span>
+                                <span className="font-semibold text-(--ink)">Token verified</span>
                             </div>
                             <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                 <span>Volunteer routes</span>
-                                <span className="font-semibold text-[var(--ink)]">Real-time</span>
+                                <span className="font-semibold text-(--ink)">Real-time</span>
                             </div>
                         </div>
                     </div>
@@ -100,8 +100,8 @@ const Home = () => {
                                 <Icon className="h-5 w-5" />
                             </div>
                             <h3 className="mt-5 font-display text-xl">{card.title}</h3>
-                            <p className="mt-3 text-sm text-[var(--muted)]">{card.description}</p>
-                            <p className="mt-4 text-sm font-semibold text-[var(--ink)]">
+                            <p className="mt-3 text-sm text-(--muted)">{card.description}</p>
+                            <p className="mt-4 text-sm font-semibold text-(--ink)">
                                 Enter {card.title} flow 
                             </p>
                         </NavLink>

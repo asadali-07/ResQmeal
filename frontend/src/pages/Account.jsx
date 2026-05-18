@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserRestaurant } from "../store/restaurantSlice";
@@ -32,8 +32,11 @@ const Account = () => {
   const { ngo, loading: ngoLoading } = useSelector((state) => state.ngoReducer);
   const { volunteer } = useSelector((state) => state.volunteerReducer);
   const [otp, setOtp] = useState("");
-  const { register, handleSubmit, reset, watch } = useForm();
-  const selectedImage = watch("profileImage");
+  const { control, register, handleSubmit, reset } = useForm();
+  const selectedImage = useWatch({
+    control,
+    name: "profileImage",
+  });
 
   useEffect(() => {
     if (!isAuthenticated && !userInfo) {
@@ -164,7 +167,7 @@ const Account = () => {
         <button
           type="button"
           onClick={() => navigate(roleHome)}
-          className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+          className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
         >
           Back to dashboard
         </button>
@@ -220,7 +223,7 @@ const Account = () => {
                 type="email"
                 value={userInfo.email || ""}
                 disabled
-                className="mt-2 w-full rounded-2xl border border-white/70 bg-white/60 px-4 py-3 text-[var(--muted)]"
+                className="mt-2 w-full rounded-2xl border border-white/70 bg-white/60 px-4 py-3 text-(--muted)"
               />
             </div>
             <div>
@@ -263,7 +266,7 @@ const Account = () => {
                     type="button"
                     onClick={handleSendOtp}
                     disabled={verifying}
-                    className="w-full rounded-full border border-(--accent-2) px-4 py-3 text-sm font-semibold text-[var(--accent-2)]"
+                    className="w-full rounded-full border border-(--accent-2) px-4 py-3 text-sm font-semibold text-(--accent-2)"
                   >
                     {verifying ? "Sending..." : "Send OTP to email"}
                   </button>
@@ -337,7 +340,7 @@ const Account = () => {
                 <h3 className="font-display text-xl">Restaurant profile</h3>
                 <Link
                   to="/restaurant"
-                  className="rounded-full border border-(--accent-2) px-4 py-2 text-xs font-semibold text-[var(--accent-2)]"
+                  className="rounded-full border border-(--accent-2) px-4 py-2 text-xs font-semibold text-(--accent-2)"
                 >
                   Edit workspace
                 </Link>
@@ -414,7 +417,7 @@ const Account = () => {
 
                 <Link
                   to="/ngo"
-                  className="rounded-full border border-(--accent-2) px-4 py-2 text-xs font-semibold text-[var(--accent-2)]"
+                  className="rounded-full border border-(--accent-2) px-4 py-2 text-xs font-semibold text-(--accent-2)"
                 >
                   Edit workspace
                 </Link>

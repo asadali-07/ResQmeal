@@ -92,7 +92,7 @@ const NgoInfo = () => {
   if (loading && !ngo) {
     return (
       <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-        <p className="text-sm text-[var(--muted)]">
+        <p className="text-sm text-(--muted)">
           Loading NGO information...
         </p>
       </div>
@@ -102,13 +102,13 @@ const NgoInfo = () => {
   if (!ngo) {
     return (
       <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-        <p className="text-sm text-[var(--muted)]">
+        <p className="text-sm text-(--muted)">
           {error || "NGO information is not available."}
         </p>
 
         <NavLink
           to="/"
-          className="mt-4 inline-flex rounded-full border border-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent)]"
+          className="mt-4 inline-flex rounded-full border border-(--accent) px-5 py-3 text-sm font-semibold text-(--accent)"
         >
           Back to home
         </NavLink>
@@ -120,7 +120,7 @@ const NgoInfo = () => {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-(--accent)">
             NGO Partner
           </p>
 
@@ -128,7 +128,7 @@ const NgoInfo = () => {
             {ngo.ngoName || "NGO information"}
           </h2>
 
-          <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
+          <p className="mt-2 max-w-2xl text-sm text-(--muted)">
             Review NGO details before coordinating the food handoff.
           </p>
         </div>
@@ -143,14 +143,14 @@ const NgoInfo = () => {
 
             navigate(-1);
           }}
-          className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+          className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
         >
           Back
         </button>
       </div>
 
       {error && fallbackNgo ? (
-        <div className="glass-panel rounded-3xl border border-white/70 p-5 text-sm text-[var(--muted)]">
+        <div className="glass-panel rounded-3xl border border-white/70 p-5 text-sm text-(--muted)">
           Showing NGO details from fallback data because live fetch failed:
           {" "}
           {error}
@@ -167,7 +167,7 @@ const NgoInfo = () => {
             />
           ) : (
             <div className="grid h-72 place-items-center bg-[linear-gradient(135deg,rgba(255,122,26,0.18),rgba(35,155,86,0.16))]">
-              <span className="font-display text-6xl text-[var(--accent)]">
+              <span className="font-display text-6xl text-(--accent)">
                 {(ngo.ngoName || "N")
                   .slice(0, 1)
                   .toUpperCase()}
@@ -180,7 +180,7 @@ const NgoInfo = () => {
               About this NGO
             </h3>
 
-            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            <p className="mt-3 text-sm leading-6 text-(--muted)">
               {ngo.ngoDescription ||
                 "No description has been added yet."}
             </p>
@@ -190,7 +190,7 @@ const NgoInfo = () => {
                 type="button"
                 onClick={handleMessageNgo}
                 disabled={!canMessageNgo}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--accent-2)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-(--accent-2) px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
               >
                 <MessageCircle className="h-4 w-4" />
                 Message NGO
@@ -213,30 +213,30 @@ const NgoInfo = () => {
 
             <div className="mt-5 grid gap-3 text-sm">
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                <span className="text-[var(--muted)]">
+                <span className="text-(--muted)">
                   Capacity
                 </span>
 
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {ngo.capacity || "-"}
                 </span>
               </div>
 
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                <span className="text-[var(--muted)]">
+                <span className="text-(--muted)">
                   Registration Number
                 </span>
 
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {ngo.registrationNumber || "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                <span className="text-[var(--muted)]">
+                <span className="text-(--muted)">
                   Total Meals Received
                 </span>
 
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {ngo.totalMealsReceived || "0"}
                 </span>
               </div>
@@ -248,28 +248,28 @@ const NgoInfo = () => {
               Address
             </h3>
 
-            <p className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm leading-6 text-[var(--muted)]">
+            <p className="mt-4 rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm leading-6 text-(--muted)">
               {address|| "Address is not available."}
             </p>
 
             {ngo.location?.coordinates?.length === 2 ? (
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                  <p className="text-xs uppercase tracking-[0.2em] text-(--muted)">
                     Latitude
                   </p>
 
-                  <p className="mt-2 font-semibold text-[var(--ink)]">
+                  <p className="mt-2 font-semibold text-(--ink)">
                     {ngo.location.coordinates[1]}
                   </p>
                 </div>
 
                 <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                  <p className="text-xs uppercase tracking-[0.2em] text-(--muted)">
                     Longitude
                   </p>
 
-                  <p className="mt-2 font-semibold text-[var(--ink)]">
+                  <p className="mt-2 font-semibold text-(--ink)">
                     {ngo.location.coordinates[0]}
                   </p>
                 </div>

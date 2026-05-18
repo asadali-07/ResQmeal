@@ -26,7 +26,6 @@ const NgoMap = () => {
     error: ngoError,
   } = useSelector((state) => state.ngoReducer);
   const {
-    claim,
     volunteers,
     loading: claimLoading,
     error: claimError,
@@ -64,7 +63,6 @@ const NgoMap = () => {
         pincode: ngo.address?.pincode || "",
         country: ngo.address?.country || "India",
       });
-      setIsEditing(false);
     }
   }, [ngo, reset]);
 
@@ -263,11 +261,9 @@ const NgoMap = () => {
   const getRestaurantInfoState = (
     restaurant,
     returnTo = "/ngo",
-    restaurantOwnerId = "",
   ) => ({
     restaurant,
     returnTo,
-    restaurantOwnerId,
   });
 
   const getVolunteerInfoState = (volunteer, returnTo = "/ngo") => ({
@@ -320,29 +316,35 @@ const NgoMap = () => {
     currentClaimStatus !== "cancelled";
 
   const onSubmit = async (values) => {
-    const payload = {
-      ngoName: values.ngoName,
-      ngoDescription: values.ngoDescription,
-      registrationNumber: values.registrationNumber,
-      capacity: Number(values.capacity),
-      ngoPicture: values.ngoPicture?.[0],
-      address: {
-        street: values.street,
-        area: values.area,
-        landmark: values.landmark,
-        city: values.city,
-        state: values.state,
-        pincode: values.pincode,
-        country: values.country,
-      },
-    };
-
-    if (ngo) {
-      await dispatch(updateNgo(payload));
-    } else {
-      await dispatch(createNgo(payload));
-    }
+  const payload = {
+    ngoName: values.ngoName,
+    ngoDescription: values.ngoDescription,
+    registrationNumber: values.registrationNumber,
+    capacity: Number(values.capacity),
+    ngoPicture: values.ngoPicture?.[0],
+    address: {
+      street: values.street,
+      area: values.area,
+      landmark: values.landmark,
+      city: values.city,
+      state: values.state,
+      pincode: values.pincode,
+      country: values.country,
+    },
   };
+
+  let result;
+
+  if (ngo) {
+    result = await dispatch(updateNgo(payload));
+  } else {
+    result = await dispatch(createNgo(payload));
+  }
+
+  if (result?.meta?.requestStatus === "fulfilled") {
+    setIsEditing(false);
+  }
+};
 
   const showForm = !ngo || isEditing;
 
@@ -351,7 +353,7 @@ const NgoMap = () => {
       <button
         type="button"
         onClick={handleLocateUser}
-        className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-2)] bg-white/80 px-4 py-2 text-xs font-semibold text-[var(--accent-2)]"
+        className="inline-flex items-center gap-2 rounded-full border border-(--accent-2) bg-white/80 px-4 py-2 text-xs font-semibold text-(--accent-2)"
       >
         <LocateFixed className="h-4 w-4" />
         Locate me
@@ -360,7 +362,7 @@ const NgoMap = () => {
         type="button"
         onClick={handleRefresh}
         disabled={foodLoading}
-        className="inline-flex items-center gap-2 rounded-full bg-[var(--accent-2)] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-full bg-(--accent-2) px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
       >
         <RefreshCw className={`h-4 w-4 ${foodLoading ? "animate-spin" : ""}`} />
         {foodLoading ? "Refreshing" : "Refresh"}
@@ -380,7 +382,7 @@ const NgoMap = () => {
           <h2 className="font-display text-3xl">
             {ngo ? "NGO live map" : "Create NGO profile"}
           </h2>
-          <p className="text-sm text-[var(--muted)]">
+          <p className="text-sm text- (--muted)">
             {ngo
               ? "Find surplus meals within 5 km and claim instantly."
               : "Register your NGO so claims can be verified."}
@@ -389,7 +391,7 @@ const NgoMap = () => {
         {ngo && !isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+            className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
           >
             Edit profile
           </button>
@@ -513,7 +515,7 @@ const NgoMap = () => {
             <div className="flex flex-wrap gap-3">
               <button
                 type="submit"
-                className="flex-1 rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                className="flex-1 rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white"
                 disabled={ngoLoading}
               >
                 {ngoLoading ? "Saving..." : ngo ? "Update NGO" : "Create NGO"}
@@ -522,7 +524,7 @@ const NgoMap = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="rounded-full border border-[var(--accent-2)] px-5 py-3 text-sm font-semibold text-[var(--accent-2)]"
+                  className="rounded-full border border-(--accent-2) px-5 py-3 text-sm font-semibold text-(--accent-2)"
                 >
                   Cancel
                 </button>
@@ -556,7 +558,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>NGO</span>
 
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {ngo?.ngoName || "-"}
                 </p>
               </div>
@@ -565,7 +567,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Registration</span>
 
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {ngo?.registrationNumber || "-"}
                 </p>
               </div>
@@ -574,7 +576,7 @@ const NgoMap = () => {
               <div className="sm:col-span-2 rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Description</span>
 
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {ngo?.ngoDescription || "-"}
                 </p>
               </div>
@@ -583,7 +585,7 @@ const NgoMap = () => {
               <div className="sm:col-span-2 rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Capacity</span>
 
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {ngo?.capacity || "-"} meals
                 </p>
               </div>
@@ -592,7 +594,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Street</span>
 
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {ngo?.address?.street || "-"}
                 </p>
               </div>
@@ -601,7 +603,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Area</span>
 
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {ngo?.address?.area || "-"}
                 </p>
               </div>
@@ -610,7 +612,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Landmark</span>
 
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {ngo?.address?.landmark || "-"}
                 </p>
               </div>
@@ -619,7 +621,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>City</span>
 
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {ngo?.address?.city || "-"}
                 </p>
               </div>
@@ -628,7 +630,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>State</span>
 
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {ngo?.address?.state || "-"}
                 </p>
               </div>
@@ -637,7 +639,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Pincode</span>
 
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {ngo?.address?.pincode || "-"}
                 </p>
               </div>
@@ -646,7 +648,7 @@ const NgoMap = () => {
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Country</span>
 
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {ngo?.address?.country || "India"}
                 </p>
               </div>
@@ -668,7 +670,7 @@ const NgoMap = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-display text-xl">Search coordinates</h3>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
+                    <p className="mt-1 text-sm text-(--muted)">
                       Change the search center manually or jump straight to your
                       live location.
                     </p>
@@ -709,7 +711,7 @@ const NgoMap = () => {
                   />
                   <button
                     onClick={handleRefresh}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--accent-2)] px-5 py-3 text-sm font-semibold text-white"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-(--accent-2) px-5 py-3 text-sm font-semibold text-white"
                     disabled={foodLoading}
                   >
                     <RefreshCw
@@ -719,7 +721,7 @@ const NgoMap = () => {
                   </button>
                 </div>
                 {locationMessage && (
-                  <p className="mt-3 rounded-2xl bg-white/80 px-4 py-3 text-sm text-[var(--muted)]">
+                  <p className="mt-3 rounded-2xl bg-white/80 px-4 py-3 text-sm text-(--muted)">
                     {locationMessage}
                   </p>
                 )}
@@ -732,13 +734,13 @@ const NgoMap = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-display text-xl">Selected food</h3>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
+                    <p className="mt-1 text-sm text-(--muted)">
                       The card updates from the map so you can review the pickup
                       before claiming it.
                     </p>
                   </div>
                   {selectedFood && (
-                    <span className="rounded-full bg-[var(--accent-2)]/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-2)]">
+                    <span className="rounded-full bg-(--accent-2)/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-(--accent-2)">
                       {selectedFood.status || "available"}
                     </span>
                   )}
@@ -755,18 +757,18 @@ const NgoMap = () => {
                     <div className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-sm">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-lg font-semibold text-[var(--ink)]">
+                          <p className="text-lg font-semibold text-(--ink)">
                             {selectedFood.name}
                           </p>
-                          <p className="mt-1 text-sm text-[var(--muted)]">
+                          <p className="mt-1 text-sm text-(--muted)">
                             {selectedFood.description}
                           </p>
                         </div>
-                        <div className="rounded-2xl bg-[var(--accent)]/10 px-4 py-3 text-right">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                        <div className="rounded-2xl bg-(--accent)/10 px-4 py-3 text-right">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--muted)">
                             Meals
                           </p>
-                          <p className="mt-1 text-2xl font-display text-[var(--ink)]">
+                          <p className="mt-1 text-2xl font-display text-(--ink)">
                             {selectedFood.quantity}
                           </p>
                         </div>
@@ -774,18 +776,18 @@ const NgoMap = () => {
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="rounded-2xl border border-white/80 bg-white/80 p-4 text-sm">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
                           Pickup window
                         </p>
-                        <p className="mt-2 font-semibold text-[var(--ink)]">
+                        <p className="mt-2 font-semibold text-(--ink)">
                           {formatDateTime(selectedFood.pickupTime)}
                         </p>
                       </div>
                       <div className="rounded-2xl border border-white/80 bg-white/80 p-4 text-sm">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
                           Expires
                         </p>
-                        <p className="mt-2 font-semibold text-[var(--ink)]">
+                        <p className="mt-2 font-semibold text-(--ink)">
                           {formatDateTime(selectedFood.expiryTime)}
                         </p>
                       </div>
@@ -793,10 +795,10 @@ const NgoMap = () => {
                     <div className="rounded-[28px] border border-white/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(255,244,235,0.96))] p-5">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
                             Pickup point
                           </p>
-                          <p className="mt-2 text-base font-semibold text-[var(--ink)]">
+                          <p className="mt-2 text-base font-semibold text-(--ink)">
                             {selectedFood.restaurantId?.restaurantName ||
                               "Restaurant"}
                           </p>
@@ -807,19 +809,19 @@ const NgoMap = () => {
                             state={getRestaurantInfoState(
                               selectedFood.restaurantId,
                             )}
-                            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[var(--accent)] shadow-sm transition hover:-translate-y-0.5"
+                            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-(--accent) shadow-sm transition hover:-translate-y-0.5"
                           >
                             Restaurant info
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
                         ) : (
-                          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[var(--accent)] shadow-sm">
+                          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-(--accent) shadow-sm">
                             Route ready
                           </span>
                         )}
                       </div>
                       {formatAddress(selectedFood.restaurantId?.address) && (
-                        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+                        <p className="mt-3 text-sm leading-6 text-(--muted)">
                           {formatAddress(selectedFood.restaurantId?.address)}
                         </p>
                       )}
@@ -827,21 +829,21 @@ const NgoMap = () => {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Link
                         to={`/ngo/route/${selectedFood._id}`}
-                        className="inline-flex items-center justify-center rounded-full border border-[var(--accent-2)] px-4 py-3 text-sm font-semibold text-[var(--accent-2)]"
+                        className="inline-flex items-center justify-center rounded-full border border-(--accent-2) px-4 py-3 text-sm font-semibold text-(--accent-2)"
                       >
                         Show route
                       </Link>
                       <button
                         onClick={() => handleClaim(selectedFood)}
                         disabled={claimLoading || isSelectedClaimed}
-                        className="rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white"
+                        className="rounded-full bg-(--accent) px-4 py-3 text-sm font-semibold text-white"
                       >
                         {isSelectedClaimed ? "Claim created" : "Claim food"}
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-2 text-sm text-[var(--muted)]">
+                  <p className="mt-2 text-sm text-(--muted)">
                     Select a food marker or listing to see details.
                   </p>
                 )}
@@ -852,7 +854,7 @@ const NgoMap = () => {
                 {currentClaimStatus ? (
                   <div className="mt-4 space-y-3 text-sm">
                     <div className="rounded-2xl border border-white/80 bg-white/80 p-4">
-                      <p className="font-semibold text-[var(--ink)]">
+                      <p className="font-semibold text-(--ink)">
                         {selectedFood?.name || "Claimed food"}
                       </p>
                       {claimStatusNotice?.claimId && (
@@ -860,7 +862,7 @@ const NgoMap = () => {
                           Claim ID: {claimStatusNotice.claimId}
                         </p>
                       )}
-                      <span className="mt-3 inline-flex rounded-full bg-[var(--accent-2)] px-3 py-1 text-xs font-semibold uppercase text-white">
+                      <span className="mt-3 inline-flex rounded-full bg-(--accent-2) px-3 py-1 text-xs font-semibold uppercase text-white">
                         {currentClaimStatus}
                       </span>
                     </div>
@@ -869,10 +871,9 @@ const NgoMap = () => {
                         to={`/restaurant-info/${getRestaurantId(selectedFood?.restaurantId)}`}
                         state={getRestaurantInfoState(
                           selectedFood?.restaurantId,
-                          "/ngo",
-                          claim.restaurantId,
+                          "/ngo"
                         )}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--accent)]"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-(--accent)"
                       >
                         View restaurant info
                         <ArrowUpRight className="h-3.5 w-3.5" />
@@ -889,7 +890,7 @@ const NgoMap = () => {
                     )}
                   </div>
                 ) : (
-                  <p className="mt-2 text-sm text-[var(--muted)]">
+                  <p className="mt-2 text-sm text-(--muted)">
                     No claim created yet.
                   </p>
                 )}
@@ -897,13 +898,13 @@ const NgoMap = () => {
                   <p className="mt-3 text-sm text-red-500">{claimError}</p>
                 )}
                 {volunteers?.length ? (
-                  <p className="mt-2 text-sm text-[var(--muted)]">
+                  <p className="mt-2 text-sm text-(--muted)">
                     {volunteers.length} volunteers alerted.
                   </p>
                 ) : null}
                 {deliveryHandoffNotices.length > 0 && (
                   <div className="mt-5 space-y-3">
-                    <p className="text-xs font-semibold uppercase text-[var(--muted)]">
+                    <p className="text-xs font-semibold uppercase text-(--muted)">
                       Delivery handoff
                     </p>
 
@@ -912,11 +913,11 @@ const NgoMap = () => {
                         key={notice._id || notice.id}
                         className="rounded-2xl border flex flex-col gap-2 border-orange-100 bg-white p-4 text-sm shadow-md ring-1 ring-orange-50"
                       >
-                        <p className="font-semibold text-[var(--ink)]">
+                        <p className="font-semibold text-(--ink)">
                           {notice.message || "Delivery update"}
                         </p>
 
-                        <p className="text-xs text-[var(--muted)]">
+                        <p className="text-xs text-(--muted)">
                           Food: {notice.foodName || notice.foodId || "-"}
                         </p>
 
@@ -961,7 +962,7 @@ const NgoMap = () => {
                 )}
                 <Link
                   to="/ngo/claims"
-                  className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-[var(--accent-2)] px-4 py-2 text-sm font-semibold text-[var(--accent-2)]"
+                  className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-(--accent-2) px-4 py-2 text-sm font-semibold text-(--accent-2)"
                 >
                   Open claimed foods page
                 </Link>
@@ -972,7 +973,7 @@ const NgoMap = () => {
           <div className="glass-panel rounded-3xl border border-white/70 p-6">
             <div className="flex items-center justify-between">
               <h3 className="font-display text-xl">Pickup listings</h3>
-              <span className="text-sm text-[var(--muted)]">
+              <span className="text-sm text-(--muted)">
                 {availableFoods.length} spots
               </span>
             </div>
@@ -983,8 +984,8 @@ const NgoMap = () => {
                   onClick={() => setSelectedFood(food)}
                   className={`relative cursor-pointer rounded-3xl border bg-white/80 p-5 transition ${
                     String(selectedFood?._id) === String(food._id)
-                      ? "border-[var(--accent-2)] shadow-xl shadow-orange-100"
-                      : "border-white/80 hover:-translate-y-0.5 hover:border-[var(--accent-2)]/40"
+                      ? "border-(--accent-2) shadow-xl shadow-orange-100"
+                      : "border-white/80 hover:-translate-y-0.5 hover:border-(--accent-2)/40"
                   }`}
                 >
                   {getRestaurantId(food.restaurantId) ? (
@@ -992,7 +993,7 @@ const NgoMap = () => {
                       to={`/restaurant-info/${getRestaurantId(food.restaurantId)}`}
                       state={getRestaurantInfoState(food.restaurantId)}
                       onClick={(event) => event.stopPropagation()}
-                      className="absolute right-4 top-4 z-10 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-[var(--accent)] shadow-sm transition hover:-translate-y-0.5"
+                      className="absolute right-4 top-4 z-10 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-(--accent) shadow-sm transition hover:-translate-y-0.5"
                     >
                       Restaurant info
                       <ArrowUpRight className="h-3.5 w-3.5" />
@@ -1005,19 +1006,19 @@ const NgoMap = () => {
                       className="mb-4 h-36 w-full rounded-2xl object-cover"
                     />
                   )}
-                  <p className="text-lg font-semibold text-[var(--ink)]">
+                  <p className="text-lg font-semibold text-(--ink)">
                     {food.name}
                   </p>
-                  <p className="mt-2 text-sm text-[var(--muted)]">
+                  <p className="mt-2 text-sm text-(--muted)">
                     {food.description}
                   </p>
                   <div className="mt-4 flex items-center justify-between text-sm">
-                    <span className="text-[var(--muted)]">Quantity</span>
-                    <span className="font-semibold text-[var(--ink)]">
+                    <span className="text-(--muted)">Quantity</span>
+                    <span className="font-semibold text-(--ink)">
                       {food.quantity}
                     </span>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-[var(--muted)]">
+                  <div className="mt-3 flex items-center justify-between text-xs text-(--muted)">
                     <span>
                       {String(selectedFood?._id) === String(food._id)
                         ? "Selected on map"
@@ -1029,7 +1030,7 @@ const NgoMap = () => {
                     <Link
                       to={`/ngo/route/${food._id}`}
                       onClick={(event) => event.stopPropagation()}
-                      className="inline-flex items-center justify-center rounded-full border border-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent)]"
+                      className="inline-flex items-center justify-center rounded-full border border-(--accent) px-4 py-2 text-sm font-semibold text-(--accent)"
                     >
                       Show route
                     </Link>
@@ -1040,7 +1041,7 @@ const NgoMap = () => {
                       }}
                       type="button"
                       disabled={claimLoading}
-                      className="sm:col-span-2 rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white"
+                      className="sm:col-span-2 rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white"
                     >
                       Claim food
                     </button>
@@ -1048,7 +1049,7 @@ const NgoMap = () => {
                 </div>
               ))}
               {!availableFoods.length && (
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-sm text-(--muted)">
                   No nearby listings yet. Check that the restaurant and NGO
                   addresses are within range, then refresh.
                 </p>

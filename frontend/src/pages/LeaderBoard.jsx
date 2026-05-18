@@ -216,7 +216,7 @@ const LeaderBoard = () => {
                 {volunteer.user?.name}
               </h3>
 
-              <div className="mt-4 w-full rounded-2xl bg-white/70 px-4 py-3">
+              <div className="mt-4 w-full flex justify-between items-center rounded-2xl bg-white/70 px-4 py-3">
                 <p className="text-sm text-(--muted)">
                   Total Deliveries
                 </p>
@@ -235,7 +235,7 @@ const LeaderBoard = () => {
   return (
     <div className="space-y-8">
       {/* HERO */}
-      <div className="glass-panel rounded-[2rem] border border-white/70 p-8">
+      <div className="glass-panel rounded-4xl border border-white/70 p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-(--accent)/10 px-4 py-2 text-sm font-semibold text-(--accent)">

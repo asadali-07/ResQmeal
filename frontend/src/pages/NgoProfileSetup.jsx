@@ -59,7 +59,7 @@ const NgoProfileSetup = () => {
         <div className="max-w-3xl">
             <div className="glass-panel rounded-3xl border border-white/70 p-6">
                 <h2 className="font-display text-3xl">Create NGO profile</h2>
-                <p className="mt-2 text-sm text-[var(--muted)]">
+                <p className="mt-2 text-sm text-(--muted)">
                     Register your NGO to claim nearby surplus meals.
                 </p>
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
@@ -172,7 +172,7 @@ const NgoProfileSetup = () => {
                     {error && <p className="text-sm text-red-500">{error}</p>}
                     <button
                         type="submit"
-                        className="w-full rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                        className="w-full rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white"
                         disabled={loading}
                     >
                         {loading ? "Saving..." : ngo ? "Update NGO profile" : "Create NGO profile"}

@@ -38,7 +38,7 @@ const Register = () => {
         <div className="mx-auto max-w-xl">
             <div className="glass-panel rounded-3xl border border-white/70 p-8">
                 <h2 className="font-display text-3xl">Create your account</h2>
-                <p className="mt-2 text-sm text-[var(--muted)]">
+                <p className="mt-2 text-sm text-(--muted)">
                     Join ResQmeal as a partner in the rescue network.
                 </p>
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
@@ -92,15 +92,15 @@ const Register = () => {
                     )}
                     <button
                         type="submit"
-                        className="w-full rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200"
+                        className="w-full rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200"
                         disabled={loading}
                     >
                         {loading ? "Creating..." : "Create account"}
                     </button>
                 </form>
-                <p className="mt-5 text-sm text-[var(--muted)]">
+                <p className="mt-5 text-sm text-(--muted)">
                     Already registered?{" "}
-                    <NavLink to="/login" className="font-semibold text-[var(--accent-2)]">
+                    <NavLink to="/login" className="font-semibold text-(--accent-2)">
                         Login here
                     </NavLink>
                 </p>

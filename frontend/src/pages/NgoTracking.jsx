@@ -103,13 +103,13 @@ const NgoTracking = () => {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 className="font-display text-3xl">Volunteer live tracking</h2>
-                    <p className="text-sm text-[var(--muted)]">
+                    <p className="text-sm text-(--muted)">
                         Follow the volunteer route for this accepted claim in a dedicated tracking room.
                     </p>
                 </div>
                 <Link
                     to="/ngo/claims"
-                    className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+                    className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
                 >
                     Back to NGO claims
                 </Link>
@@ -140,33 +140,33 @@ const NgoTracking = () => {
                                         className="h-40 w-full rounded-2xl object-cover"
                                     />
                                 )}
-                                <p className="text-lg font-semibold text-[var(--ink)]">
+                                <p className="text-lg font-semibold text-(--ink)">
                                     {trackedFood?.name || "Tracked food"}
                                 </p>
-                                <p className="text-[var(--muted)]">
+                                <p className="text-(--muted)">
                                     {trackedFood?.restaurantId?.restaurantName || "Restaurant pending"}
                                 </p>
                                 <div className="flex justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                     <span>Claim status</span>
-                                    <span className="font-semibold uppercase text-[var(--ink)]">
+                                    <span className="font-semibold uppercase text-(--ink)">
                                         {trackedClaim.status}
                                     </span>
                                 </div>
                                 <div className="flex justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                     <span>Volunteer markers</span>
-                                    <span className="font-semibold text-[var(--ink)]">
+                                    <span className="font-semibold text-(--ink)">
                                         {volunteerMarkers.length}
                                     </span>
                                 </div>
                                 <div className="flex justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                                     <span>Claim ID</span>
-                                    <span className="font-semibold text-[var(--ink)]">
+                                    <span className="font-semibold text-(--ink)">
                                         {trackedClaim._id}
                                     </span>
                                 </div>
                             </div>
                         ) : (
-                            <p className="mt-2 text-sm text-[var(--muted)]">
+                            <p className="mt-2 text-sm text-(--muted)">
                                 This tracking page is waiting for a matching accepted claim.
                             </p>
                         )}
@@ -183,16 +183,16 @@ const NgoTracking = () => {
                                     key={notice.id}
                                     className="rounded-2xl border border-white/80 bg-white/80 p-4 text-sm"
                                 >
-                                    <p className="font-semibold text-[var(--ink)]">
+                                    <p className="font-semibold text-(--ink)">
                                         {notice.message || "Room update"}
                                     </p>
-                                    <p className="mt-1 text-xs text-[var(--muted)]">
+                                    <p className="mt-1 text-xs text-(--muted)">
                                         {notice.type || "notification"}
                                     </p>
                                 </div>
                             ))}
                             {!roomNotices.length && (
-                                <p className="text-sm text-[var(--muted)]">
+                                <p className="text-sm text-(--muted)">
                                     Waiting for volunteer location updates in this room.
                                 </p>
                             )}

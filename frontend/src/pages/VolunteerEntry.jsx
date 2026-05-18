@@ -26,7 +26,7 @@ const VolunteerEntry = () => {
     if (!userInfo && userLoading) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Checking your account...</p>
+                <p className="text-sm text-(--muted)">Checking your account...</p>
             </div>
         );
     }
@@ -34,12 +34,12 @@ const VolunteerEntry = () => {
     if (!userInfo) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-sm text-(--muted)">
                     Please login to access the volunteer dashboard.
                 </p>
                 <NavLink
                     to="/login"
-                    className="mt-4 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                    className="mt-4 inline-flex rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white"
                 >
                     Go to login
                 </NavLink>
@@ -50,12 +50,12 @@ const VolunteerEntry = () => {
     if (userInfo.role !== "volunteer") {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-sm text-(--muted)">
                     This space is reserved for volunteers.
                 </p>
                 <NavLink
                     to="/"
-                    className="mt-4 inline-flex rounded-full border border-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent)]"
+                    className="mt-4 inline-flex rounded-full border border-(--accent) px-5 py-3 text-sm font-semibold text-(--accent)"
                 >
                     Back to home
                 </NavLink>
@@ -66,7 +66,7 @@ const VolunteerEntry = () => {
     if (!volunteer && loading) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Loading volunteer profile...</p>
+                <p className="text-sm text-(--muted)">Loading volunteer profile...</p>
             </div>
         );
     }

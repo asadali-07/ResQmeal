@@ -154,22 +154,22 @@ const Messages = () => {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-(--accent)">
           Direct coordination
         </p>
         <h2 className="mt-2 font-display text-3xl">Messages</h2>
-        <p className="text-sm text-[var(--muted)]">
+        <p className="text-sm text-(--muted)">
           Chat with restaurants, NGOs, and volunteers from one pickup-ready
           inbox.
         </p>
       </div>
 
-      <div className="glass-panel grid h-[720px] overflow-hidden rounded-[36px] border border-white/70 lg:grid-cols-[360px_1fr]">
+      <div className="glass-panel grid h-180 overflow-hidden rounded-[36px] border border-white/70 lg:grid-cols-[360px_1fr]">
         <aside className="border-b border-white/70 bg-white/55 p-5 lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="font-display text-2xl">Inbox</h3>
-              <p className="text-xs text-[var(--muted)]">
+              <p className="text-xs text-(--muted)">
                 {messagedUsers.length} conversations
               </p>
             </div>
@@ -177,24 +177,24 @@ const Messages = () => {
               type="button"
               onClick={() => dispatch(getMessagedUsers())}
               disabled={conversationsLoading}
-              className="rounded-full border border-[var(--accent-2)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-2)] disabled:opacity-60"
+              className="rounded-full border border-(--accent-2) px-3 py-1.5 text-xs font-semibold text-(--accent-2) disabled:opacity-60"
             >
               {conversationsLoading ? "Loading" : "Refresh"}
             </button>
           </div>
 
           <div className="mt-5 flex items-center gap-2 rounded-full border border-white/80 bg-white/80 px-4 py-3">
-            <Search className="h-4 w-4 text-[var(--muted)]" />
+            <Search className="h-4 w-4 text-(--muted)" />
             <input
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search conversations"
-              className="w-full bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-(--muted)"
             />
           </div>
 
-          <div className="mt-5 max-h-[520px] space-y-2 overflow-auto pr-1">
+          <div className="mt-5 max-h-130 space-y-2 overflow-auto pr-1">
             {filteredUsers.map((item) => {
               const avatarUrl = getAvatarUrl(item);
               const isActive = String(selectedUserId) === String(item._id);
@@ -206,8 +206,8 @@ const Messages = () => {
                   onClick={() => handleSelectUser(item._id)}
                   className={`flex w-full items-center gap-3 rounded-[26px] px-3 py-3 text-left transition ${
                     isActive
-                      ? "bg-[var(--accent-2)] text-white shadow-lg shadow-orange-200"
-                      : "bg-white/70 text-[var(--ink)] hover:bg-white"
+                      ? "bg-(--accent-2) text-white shadow-lg shadow-orange-200"
+                      : "bg-white/70 text-(--ink) hover:bg-white"
                   }`}
                 >
                   {avatarUrl ? (
@@ -221,7 +221,7 @@ const Messages = () => {
                       className={`grid h-12 w-12 place-items-center rounded-full font-semibold ring-2 ring-white/80 ${
                         isActive
                           ? "bg-white/20 text-white"
-                          : "bg-[var(--accent)]/10 text-[var(--accent)]"
+                          : "bg-(--accent)/10 text-(--accent)"
                       }`}
                     >
                       {getInitial(item.name)}
@@ -233,7 +233,7 @@ const Messages = () => {
                     </span>
                     <span
                       className={`mt-0.5 block truncate text-xs ${
-                        isActive ? "text-white/75" : "text-[var(--muted)]"
+                        isActive ? "text-white/75" : "text-(--muted)"
                       }`}
                     >
                       {item.latestMessageAt
@@ -246,7 +246,7 @@ const Messages = () => {
             })}
 
             {!filteredUsers.length && (
-              <div className="rounded-[26px] bg-white/70 p-5 text-sm text-[var(--muted)]">
+              <div className="rounded-[26px] bg-white/70 p-5 text-sm text-(--muted)">
                 No chats found yet. Conversations will appear here after a
                 message exists.
               </div>
@@ -254,7 +254,7 @@ const Messages = () => {
           </div>
         </aside>
 
-        <section className="flex h-[720px] min-h-0 flex-col overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(255,122,26,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,248,241,0.72))]">
+        <section className="flex h-180 min-h-0 flex-col overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(255,122,26,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,248,241,0.72))]">
           <div className="flex items-center gap-3 border-b border-white/70 bg-white/65 px-5 py-4 backdrop-blur">
             {selectedUser ? (
               getAvatarUrl(selectedUser) ? (
@@ -264,12 +264,12 @@ const Messages = () => {
                   className="h-12 w-12 rounded-full object-cover"
                 />
               ) : (
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-[var(--accent)]/10 font-semibold text-[var(--accent)]">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-(--accent)/10 font-semibold text-(--accent)">
                   {getInitial(selectedUser.name)}
                 </span>
               )
             ) : (
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-[var(--accent-2)]/10 text-[var(--accent-2)]">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-(--accent-2)/10 text-(--accent-2)">
                 <MessageCircle className="h-5 w-5" />
               </span>
             )}
@@ -277,7 +277,7 @@ const Messages = () => {
               <h3 className="truncate font-display text-xl">
                 {activeChatLabel}
               </h3>
-              <p className="truncate text-xs text-[var(--muted)]">
+              <p className="truncate text-xs text-(--muted)">
                 {selectedUserId ? null : "Pick a conversation to begin"}
               </p>
             </div>
@@ -287,7 +287,7 @@ const Messages = () => {
             <button
               type="button"
               onClick={() => setSelectedUserId("")}
-              className="absolute right-6 top-6 rounded-full bg-white/80 p-1 text-[var(--muted)] transition hover:bg-white"
+              className="absolute right-6 top-6 rounded-full bg-white/80 p-1 text-(--muted) transition hover:bg-white"
               aria-label="Close chat"
             >
               <X className="h-5 w-5" />
@@ -310,8 +310,8 @@ const Messages = () => {
                       <div
                         className={`max-w-[82%] rounded-[28px] px-4 py-3 shadow-sm sm:max-w-[66%] ${
                           isMine
-                            ? "rounded-br-md bg-[var(--accent-2)] text-white"
-                            : "rounded-bl-md bg-white text-[var(--ink)]"
+                            ? "rounded-br-md bg-(--accent-2) text-white"
+                            : "rounded-bl-md bg-white text-(--ink) "
                         }`}
                       >
                         {message.text ? (
@@ -328,7 +328,7 @@ const Messages = () => {
                         ) : null}
                         <p
                           className={`mt-2 text-[10px] ${
-                            isMine ? "text-white/70" : "text-[var(--muted)]"
+                            isMine ? "text-white/70" : "text-(--muted)"
                           }`}
                         >
                           {message.createdAt
@@ -346,12 +346,12 @@ const Messages = () => {
                   );
                 })}
                 {!messages.length && (
-                  <div className="mx-auto mt-20 max-w-sm rounded-[32px] bg-white/70 p-8 text-center">
-                    <MessageCircle className="mx-auto h-10 w-10 text-[var(--accent)]" />
+                  <div className="mx-auto mt-20 max-w-sm rounded-4xl bg-white/70 p-8 text-center">
+                    <MessageCircle className="mx-auto h-10 w-10 text-(--accent)" />
                     <h4 className="mt-4 font-display text-xl">
                       No messages yet
                     </h4>
-                    <p className="mt-2 text-sm text-[var(--muted)]">
+                    <p className="mt-2 text-sm text-(--muted)">
                       Send the first note and get this pickup thread moving.
                     </p>
                   </div>
@@ -361,11 +361,11 @@ const Messages = () => {
             ) : (
               <div className="grid h-full place-items-center">
                 <div className="max-w-sm rounded-[36px] bg-white/70 p-8 text-center shadow-sm">
-                  <MessageCircle className="mx-auto h-12 w-12 text-[var(--accent-2)]" />
+                  <MessageCircle className="mx-auto h-12 w-12 text-(--accent-2)" />
                   <h4 className="mt-4 font-display text-2xl">
                     Your pickup chats live here
                   </h4>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                  <p className="mt-2 text-sm leading-6 text-(--muted)">
                     Select a conversation from the inbox to continue
                     coordinating.
                   </p>
@@ -379,8 +379,8 @@ const Messages = () => {
             className="border-t border-white/70 bg-white/70 p-4 backdrop-blur"
           >
             {image ? (
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-[var(--muted)]">
-                <ImagePlus className="h-4 w-4 text-[var(--accent)]" />
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-(--muted)">
+                <ImagePlus className="h-4 w-4 text-(--accent)" />
                 {image.name}
                 <button
                   type="button"
@@ -410,7 +410,7 @@ const Messages = () => {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={!selectedUserId}
-                className="grid h-10 w-10 place-items-center rounded-full text-[var(--accent)] transition hover:bg-[var(--accent)]/10 disabled:opacity-40"
+                className="grid h-10 w-10 place-items-center rounded-full text-(--accent) transition hover:bg-(--accent)/10 disabled:opacity-40"
                 aria-label="Attach image"
               >
                 <ImagePlus className="h-5 w-5" />
@@ -431,12 +431,12 @@ const Messages = () => {
                     ? "Message..."
                     : "Select a conversation to start messaging"
                 }
-                className="max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2 text-sm leading-6 outline-none placeholder:text-[var(--muted)] disabled:opacity-60"
+                className="max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2 text-sm leading-6 outline-none placeholder:text-(--muted) disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={loading || !canSend}
-                className="grid h-10 w-10 place-items-center rounded-full bg-[var(--accent-2)] text-white transition hover:scale-105 disabled:scale-100 disabled:opacity-40"
+                className="grid h-10 w-10 place-items-center rounded-full bg-(--accent-2) text-white transition hover:scale-105 disabled:scale-100 disabled:opacity-40"
                 aria-label="Send message"
               >
                 <Send className="h-4 w-4" />

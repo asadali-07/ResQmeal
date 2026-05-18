@@ -33,10 +33,10 @@ const RestaurantEntry = () => {
     if (!userInfo) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Please login to access the restaurant dashboard.</p>
+                <p className="text-sm text-(--muted)">Please login to access the restaurant dashboard.</p>
                 <NavLink
                     to="/login"
-                    className="mt-4 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                    className="mt-4 inline-flex rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white"
                 >
                     Go to login
                 </NavLink>
@@ -47,12 +47,12 @@ const RestaurantEntry = () => {
     if (userInfo.role !== "restaurant") {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-sm text-(--muted)">
                     This space is reserved for restaurant partners.
                 </p>
                 <NavLink
                     to="/"
-                    className="mt-4 inline-flex rounded-full border border-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent)]"
+                    className="mt-4 inline-flex rounded-full border border-(--accent) px-5 py-3 text-sm font-semibold text-(--accent)"
                 >
                     Back to home
                 </NavLink>
@@ -63,7 +63,7 @@ const RestaurantEntry = () => {
     if (!restaurant && loading) {
         return (
             <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-                <p className="text-sm text-[var(--muted)]">Loading restaurant profile...</p>
+                <p className="text-sm text-(--muted)">Loading restaurant profile...</p>
             </div>
         );
     }

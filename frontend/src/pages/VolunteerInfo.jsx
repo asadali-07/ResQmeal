@@ -64,7 +64,7 @@ const VolunteerInfo = () => {
   if (loading && !volunteer) {
     return (
       <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-        <p className="text-sm text-[var(--muted)]">
+        <p className="text-sm text-(--muted)">
           Loading volunteer information...
         </p>
       </div>
@@ -74,13 +74,13 @@ const VolunteerInfo = () => {
   if (!volunteer) {
     return (
       <div className="glass-panel rounded-3xl border border-white/70 p-8 text-center">
-        <p className="text-sm text-[var(--muted)]">
+        <p className="text-sm text-(--muted)">
           {error || "Volunteer information is not available."}
         </p>
 
         <NavLink
           to="/"
-          className="mt-4 inline-flex rounded-full border border-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent)]"
+          className="mt-4 inline-flex rounded-full border border-(--accent) px-5 py-3 text-sm font-semibold text-(--accent)"
         >
           Back to home
         </NavLink>
@@ -92,7 +92,7 @@ const VolunteerInfo = () => {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--accent)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-(--accent)">
             Volunteer Partner
           </p>
 
@@ -100,7 +100,7 @@ const VolunteerInfo = () => {
             {volunteer.userId.name || "Volunteer information"}
           </h2>
 
-          <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
+          <p className="mt-2 max-w-2xl text-sm text-(--muted)">
             Review volunteer details before assigning delivery tasks.
           </p>
         </div>
@@ -115,14 +115,14 @@ const VolunteerInfo = () => {
 
             navigate(-1);
           }}
-          className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+          className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
         >
           Back
         </button>
       </div>
 
       {error && fallbackVolunteer ? (
-        <div className="glass-panel rounded-3xl border border-white/70 p-5 text-sm text-[var(--muted)]">
+        <div className="glass-panel rounded-3xl border border-white/70 p-5 text-sm text-(--muted)">
           Showing volunteer details from fallback data because live fetch
           failed: {error}
         </div>
@@ -152,8 +152,8 @@ const VolunteerInfo = () => {
             </h3>
 
             <div className="mt-4 flex items-center gap-3"> 
-              <Truck className="h-5 w-5 text-[var(--muted)]" />
-              <span className="text-sm text-[var(--muted)]">
+              <Truck className="h-5 w-5 text-(--muted)" />
+              <span className="text-sm text-(--muted)">
                 {volunteer.vehicleType || "Vehicle type not specified"}
               </span>
             </div>
@@ -164,7 +164,7 @@ const VolunteerInfo = () => {
                 type="button"
                 onClick={handleMessageVolunteer}
                 disabled={!canMessageVolunteer}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--accent-2)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-(--accent-2) px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
               >
                 <MessageCircle className="h-4 w-4" />
                 Message Volunteer
@@ -174,7 +174,7 @@ const VolunteerInfo = () => {
             {(userInfo?.role === "restaurant" ||
               userInfo?.role === "ngo") &&
             !volunteer?.userId ? (
-              <p className="mt-3 text-xs text-[var(--muted)]">
+              <p className="mt-3 text-xs text-(--muted)">
                 Messaging will appear once this volunteer includes its owner
                 account ID.
               </p>
@@ -190,40 +190,40 @@ const VolunteerInfo = () => {
 
             <div className="mt-5 grid gap-3 text-sm">
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                <span className="text-[var(--muted)]">
+                <span className="text-(--muted)">
                   Availability
                 </span>
 
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {volunteer.isAvailable ? "Available for deliveries" : "Currently unavailable"}
                 </span>
               </div>
 
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                <span className="text-[var(--muted)]">
+                <span className="text-(--muted)">
                   Phone Number
                 </span>
 
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {volunteer.userId.phone || "-"}
                 </span>
               </div>
 
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                <span className="text-[var(--muted)]">
+                <span className="text-(--muted)">
                   Email
                 </span>
 
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {volunteer.userId.email || "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
-                <span className="text-[var(--muted)]">
+                <span className="text-(--muted)">
                   Total Deliveries
                 </span>
 
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {volunteer.totalDeliveries || "0"}
                 </span>
               </div>
