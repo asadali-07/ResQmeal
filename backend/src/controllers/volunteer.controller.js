@@ -3,9 +3,9 @@ const volunteerModel = require('../models/volunteer.model');
 
 async function createVolunteer(req, res) {
     try {
-        const {currentLocation,vehicleType} = req.body;
+        const { currentLocation, vehicleType } = req.body;
 
-        if(req.user.isVerified===false){
+        if (req.user.isVerified === false) {
             return res.status(403).json({ message: "Please verify your account to create a volunteer profile" });
         }
 
@@ -50,9 +50,22 @@ async function getUserVolunteer(req, res) {
     }
 }
 
+async function getVolunteerById(req, res) {
+    try {
+        const { volunteerId } = req.params;
+        const volunteer = await volunteerModel.findOne({ userId: volunteerId }).populate('userId', 'name email phone profileImage');
+        if (!volunteer) {
+            return res.status(404).json({ message: "Volunteer not found" });
+        }
+        res.status(200).json({ message: "Volunteer retrieved successfully", volunteer });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
 async function updateVolunteer(req, res) {
     try {
-        const { currentLocation, vehicleType,isAvailable } = req.body;
+        const { currentLocation, vehicleType, isAvailable } = req.body;
         const volunteer = await volunteerModel.findOne({ userId: req.user.id });
         if (!volunteer) {
             return res.status(404).json({ message: "Volunteer not found" });
@@ -69,7 +82,7 @@ async function updateVolunteer(req, res) {
 
 async function deleteVolunteer(req, res) {
     try {
-        const { volunteerId} = req.params;
+        const { volunteerId } = req.params;
         const volunteer = await volunteerModel.findOneAndDelete({ _id: volunteerId });
         if (!volunteer) {
             return res.status(404).json({ message: "Volunteer not found" });
@@ -90,11 +103,60 @@ async function getAllAvailableVolunteers(req, res) {
     }
 }
 
+async function getTopVolunteers(req, res) {
+    try {
+        const volunteers = await volunteerModel.aggregate([
+
+            {
+                $sort: { totalDeliveries: -1 }
+            },
+
+            {
+                $limit: 10
+            },
+
+            {
+                $lookup: {
+                    from: "users", 
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+
+            {
+                $unwind: "$user"
+            },
+
+            {
+                $project: {
+                    totalDeliveries: 1,
+                    "user.name": 1,
+                    "user.profileImage": 1
+                }
+            }
+
+        ]);
+
+        return res.status(200).json({
+            message: "Fetched Top Volunteers Successfully",
+            volunteers
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        });
+    }
+}
+
 module.exports = {
     createVolunteer,
     getAllVolunteers,
     getUserVolunteer,
     updateVolunteer,
     getAllAvailableVolunteers,
-    deleteVolunteer
+    deleteVolunteer,
+    getVolunteerById,
+    getTopVolunteers
 }

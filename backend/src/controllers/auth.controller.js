@@ -177,6 +177,7 @@ async function verifyOTPController(req, res) {
 
 async function logoutController(req, res) {
     try {
+        await redis.set(`blacklist-${req.cookies.token}`, 'true', 'EX', 7 * 24 * 60 * 60)
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production" ? true : false,

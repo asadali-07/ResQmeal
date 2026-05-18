@@ -114,7 +114,7 @@ const RestaurantDashboard = () => {
               ? "Restaurant command center"
               : "Create restaurant profile"}
           </h2>
-          <p className="text-sm text-[var(--muted)]">
+          <p className="text-sm text-(--muted)">
             {restaurant
               ? "Keep your profile sharp and list surplus food quickly."
               : "Register your pickup details so NGOs can find you."}
@@ -124,14 +124,14 @@ const RestaurantDashboard = () => {
           {restaurant && !isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+              className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
             >
               Edit profile
             </button>
           )}
           <NavLink
             to="/restaurant/food"
-            className="rounded-full bg-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-white"
+            className="rounded-full bg-(--accent-2) px-5 py-2 text-sm font-semibold text-white"
           >
             Manage food listings
           </NavLink>
@@ -144,7 +144,7 @@ const RestaurantDashboard = () => {
             <h3 className="font-display text-xl">
               {restaurant ? "Edit profile details" : "Profile details"}
             </h3>
-            <p className="text-sm text-[var(--muted)]">
+            <p className="text-sm text-(--muted)">
               Update once and we will map your pickup coordinates.
             </p>
             <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
@@ -271,7 +271,7 @@ const RestaurantDashboard = () => {
               <div className="flex flex-wrap gap-3">
                 <button
                   type="submit"
-                  className="flex-1 rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200"
+                  className="flex-1 rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200"
                   disabled={loading}
                 >
                   {loading
@@ -284,7 +284,7 @@ const RestaurantDashboard = () => {
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="rounded-full border border-[var(--accent-2)] px-5 py-3 text-sm font-semibold text-[var(--accent-2)]"
+                    className="rounded-full border border-(--accent-2) px-5 py-3 text-sm font-semibold text-(--accent-2)"
                   >
                     Cancel
                   </button>
@@ -315,42 +315,42 @@ const RestaurantDashboard = () => {
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm text-(--muted)">
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Restaurant</span>
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {restaurant?.restaurantName || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>License</span>
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {restaurant?.foodLicenseNumber || "-"}
                 </p>
               </div>
 
               <div className="sm:col-span-2 rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Description</span>
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {restaurant?.restaurantDescription || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Opening Time</span>
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {restaurant?.openingTime || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Closing Time</span>
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {restaurant?.closingTime || "-"}
                 </p>
               </div>
 
               <div className="sm:col-span-2 rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Pickup Window</span>
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {restaurant?.openingTime && restaurant?.closingTime
                     ? `${restaurant.openingTime} - ${restaurant.closingTime}`
                     : "-"}
@@ -359,49 +359,49 @@ const RestaurantDashboard = () => {
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Street</span>
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {restaurant?.address?.street || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Area</span>
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {restaurant?.address?.area || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Landmark</span>
-                <p className="font-semibold text-[var(--ink)] break-words">
+                <p className="font-semibold text-(--ink) wrap-break-word">
                   {restaurant?.address?.landmark || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>City</span>
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {restaurant?.address?.city || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>State</span>
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {restaurant?.address?.state || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Pincode</span>
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {restaurant?.address?.pincode || "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Country</span>
-                <p className="font-semibold text-[var(--ink)]">
+                <p className="font-semibold text-(--ink)">
                   {restaurant?.address?.country || "India"}
                 </p>
               </div>
@@ -418,16 +418,16 @@ const RestaurantDashboard = () => {
           />
           <div className="glass-panel rounded-3xl border border-white/70 p-6">
             <h3 className="font-display text-xl">Status snapshot</h3>
-            <div className="mt-4 grid gap-3 text-sm text-[var(--muted)]">
+            <div className="mt-4 grid gap-3 text-sm text-(--muted)">
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Profile</span>
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {restaurant ? "Active" : "Not created"}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Pickup window</span>
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   {restaurant?.openingTime && restaurant?.closingTime
                     ? `${restaurant.openingTime} - ${restaurant.closingTime}`
                     : "Set times"}
@@ -435,7 +435,7 @@ const RestaurantDashboard = () => {
               </div>
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Food listings</span>
-                <span className="font-semibold text-[var(--ink)]">
+                <span className="font-semibold text-(--ink)">
                   Manage in food tab
                 </span>
               </div>

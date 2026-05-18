@@ -101,6 +101,19 @@ async function updateNgo(req, res) {
     }
 }
 
+async function getNgoById(req, res) {
+    try {
+        const { ngoId } = req.params;
+        const ngo = await ngoModel.findOne({ userId: ngoId });
+        if (!ngo) {
+            return res.status(404).json({ message: "Ngo not found" });
+        }
+        res.status(200).json({ message: "Ngo retrieved successfully", ngo });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
 async function deleteNgo(req, res) {
     try {
         const { ngoId } = req.params;
@@ -115,8 +128,40 @@ async function deleteNgo(req, res) {
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
-}   
+}  
+
+async function getTopNgos(req, res) {
+    try {
+
+        const ngos = await ngoModel.aggregate([
+            {
+                $sort: { totalMealsReceived: -1 } 
+            },
+            {
+                $limit: 10
+            },
+            {
+                $project: {
+                    totalMealsReceived:1,
+                    ngoName: 1,
+                    ngoPicture:1,
+                }
+            }
+
+        ]);
+
+        return res.status(200).json({
+            message: "Fetched Top Ngos Successfully",
+            ngos
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        });
+    }
+}
 
 module.exports = {
-    createNgo, getAllNgos, getUserNgo, updateNgo, deleteNgo
+    createNgo, getAllNgos, getUserNgo, updateNgo, deleteNgo, getNgoById, getTopNgos
 }

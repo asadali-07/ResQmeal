@@ -1,12 +1,20 @@
 const jwt = require('jsonwebtoken');
+const { redis } = require("../db/redis")
 
 
 
 function createAuthMiddleware(roles = ['admin']) {
 
-    return function authMiddleware(req, res, next) {
+    return async function authMiddleware(req, res, next) {
         const token = req.cookies?.token || req.headers?.authorization?.split(' ')[1];
+        const isBlacklisted = await redis.get(`blacklist-${token}`)
 
+        if (isBlacklisted) {
+            return res.status(401).json({
+                message: 'Unauthorized: Token is blacklisted',
+            });
+        }
+        
         if (!token) {
             return res.status(401).json({
                 message: 'Unauthorized: No token provided',

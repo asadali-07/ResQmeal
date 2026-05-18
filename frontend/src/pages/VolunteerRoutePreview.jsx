@@ -323,7 +323,7 @@ const VolunteerRoutePreview = () => {
             <div className="glass-panel grid place-items-center rounded-3xl border border-white/70 p-10 text-center">
                 <div>
                     <h3 className="font-display text-xl">Mapbox token missing</h3>
-                    <p className="mt-2 text-sm text-[var(--muted)]">
+                    <p className="mt-2 text-sm text-(--muted)">
                         Add VITE_MAPBOX_TOKEN to your frontend .env to render route previews.
                     </p>
                 </div>
@@ -336,13 +336,13 @@ const VolunteerRoutePreview = () => {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 className="font-display text-3xl">Volunteer pickup route</h2>
-                    <p className="text-sm text-[var(--muted)]">
+                    <p className="text-sm text-(--muted)">
                         Route from your volunteer location to the restaurant pickup point.
                     </p>
                 </div>
                 <Link
                     to="/volunteer"
-                    className="rounded-full border border-[var(--accent-2)] px-5 py-2 text-sm font-semibold text-[var(--accent-2)]"
+                    className="rounded-full border border-(--accent-2) px-5 py-2 text-sm font-semibold text-(--accent-2)"
                 >
                     Back to volunteer map
                 </Link>
@@ -352,7 +352,7 @@ const VolunteerRoutePreview = () => {
                 <div className="glass-panel overflow-hidden rounded-3xl border border-white/70">
                     <div className="border-b border-white/70 px-6 py-4">
                         <h3 className="font-display text-lg">{routeFood?.name || "Pickup route"}</h3>
-                        <p className="text-sm text-[var(--muted)]">
+                        <p className="text-sm text-(--muted)">
                             Orange shows the driving route. Blue is the direct fallback if routing is unavailable.
                         </p>
                     </div>
@@ -410,12 +410,12 @@ const VolunteerRoutePreview = () => {
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <h3 className="font-display text-xl">Route summary</h3>
-                                <p className="mt-1 text-sm text-[var(--muted)]">{locationNote}</p>
+                                <p className="mt-1 text-sm text-(--muted)">{locationNote}</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={requestLiveLocation}
-                                className="rounded-full border border-[var(--accent-2)] px-4 py-2 text-xs font-semibold text-[var(--accent-2)]"
+                                className="rounded-full border border-(--accent-2) px-4 py-2 text-xs font-semibold text-(--accent-2)"
                             >
                                 Refresh my location
                             </button>
@@ -423,25 +423,25 @@ const VolunteerRoutePreview = () => {
 
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
                             <div className="rounded-2xl border border-white/80 bg-white/80 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
                                     Distance
                                 </p>
-                                <p className="mt-2 text-2xl font-display text-[var(--ink)]">
+                                <p className="mt-2 text-2xl font-display text-(--ink)">
                                     {routeDistanceLabel}
                                 </p>
                             </div>
                             <div className="rounded-2xl border border-white/80 bg-white/80 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
                                     ETA
                                 </p>
-                                <p className="mt-2 text-2xl font-display text-[var(--ink)]">
+                                <p className="mt-2 text-2xl font-display text-(--ink)">
                                     {routeDurationLabel}
                                 </p>
                             </div>
                         </div>
 
                         {(routeLoading || routeError) && (
-                            <p className="mt-4 text-sm text-[var(--muted)]">
+                            <p className="mt-4 text-sm text-(--muted)">
                                 {routeLoading ? "Calculating route..." : routeError}
                             </p>
                         )}
@@ -459,43 +459,43 @@ const VolunteerRoutePreview = () => {
                                     />
                                 )}
                                 <div className="rounded-[28px] border border-white/80 bg-white/85 p-5">
-                                    <p className="text-lg font-semibold text-[var(--ink)]">
+                                    <p className="text-lg font-semibold [var(--ink)">
                                         {routeFood.name}
                                     </p>
-                                    <p className="mt-1 text-sm text-[var(--muted)]">
+                                    <p className="mt-1 text-sm text-(--muted)">
                                         {routeFood.description}
                                     </p>
                                 </div>
                                 <div className="grid gap-3">
                                     <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm">
-                                        <span className="text-[var(--muted)]">Restaurant</span>
-                                        <span className="text-right font-semibold text-[var(--ink)]">
+                                        <span className="text-(--muted)">Restaurant</span>
+                                        <span className="text-right font-semibold text-(--ink)">
                                             {routeFood.restaurantId?.restaurantName || "-"}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm">
-                                        <span className="text-[var(--muted)]">Pickup time</span>
-                                        <span className="text-right font-semibold text-[var(--ink)]">
+                                        <span className="text-(--muted)">Pickup time</span>
+                                        <span className="text-right font-semibold text-(--ink)">
                                             {routeFood.pickupTime
                                                 ? new Date(routeFood.pickupTime).toLocaleString()
                                                 : "-"}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-sm">
-                                        <span className="text-[var(--muted)]">Quantity</span>
-                                        <span className="font-semibold text-[var(--ink)]">
+                                        <span className="text-(--muted)">Quantity</span>
+                                        <span className="font-semibold text-(--ink)">
                                             {routeFood.quantity || "-"}
                                         </span>
                                     </div>
                                 </div>
                                 {addressLabel && (
-                                    <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-[var(--muted)]">
+                                    <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-(--muted)">
                                         {addressLabel}
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <p className="mt-3 text-sm text-[var(--muted)]">
+                            <p className="mt-3 text-sm text-(--muted)">
                                 Loading pickup details for this route.
                             </p>
                         )}
@@ -505,7 +505,7 @@ const VolunteerRoutePreview = () => {
                             </p>
                         )}
                         {(foodLoading || volunteerLoading) && (
-                            <p className="mt-4 text-sm text-[var(--muted)]">Loading map context...</p>
+                            <p className="mt-4 text-sm text-(--muted)">Loading map context...</p>
                         )}
                     </div>
                 </div>

@@ -150,7 +150,7 @@ const NgoClaims = () => {
                             Track volunteer
                         </Link>
                     ) : null}
-                    {foodItem?._id ? (
+                    {foodItem?._id && claimItem.status !== "cancelled" && claimItem.status !== "delivered" ? (
                         <Link
                             to={`/ngo/route/${foodItem._id}`}
                             className="inline-flex w-full items-center justify-center rounded-full border border-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent)]"
@@ -307,7 +307,7 @@ const NgoClaims = () => {
                     </div>
                     <span className="text-sm text-[var(--muted)]">{completedClaims.length} closed</span>
                 </div>
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <div className="mt-5 grid gap-4 md:grid-cols-2 overflow-y-auto h-96">
                     {completedClaims.map(renderClaimCard)}
                     {!completedClaims.length ? (
                         <p className="text-sm text-[var(--muted)]">

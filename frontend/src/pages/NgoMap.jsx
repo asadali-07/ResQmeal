@@ -37,7 +37,6 @@ const NgoMap = () => {
   const [coords, setCoords] = useState({ lat: "", lng: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
-  const [claimedFood, setClaimedFood] = useState(null);
   const [locationMessage, setLocationMessage] = useState("");
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -202,7 +201,6 @@ const NgoMap = () => {
     const foodId = typeof food === "string" ? food : food?._id;
     const result = await dispatch(createClaim(foodId));
     if (result?.meta?.requestStatus === "fulfilled") {
-      setClaimedFood(typeof food === "string" ? selectedFood : food);
       dispatch(getNgoClaimedFoods());
       if (coords.lat && coords.lng) {
         dispatch(
@@ -216,10 +214,10 @@ const NgoMap = () => {
   };
 
   const handleCancelClaim = async () => {
-    if (!claim?._id) {
+    if (!claimStatusNotice.claimId) {
       return;
     }
-    const result = await dispatch(cancelClaim(claim._id));
+    const result = await dispatch(cancelClaim(claimStatusNotice.claimId));
     if (
       result?.meta?.requestStatus === "fulfilled" &&
       coords.lat &&
@@ -272,16 +270,54 @@ const NgoMap = () => {
     restaurantOwnerId,
   });
 
-  const deliveryNotices = notifications.filter(
-    (item) =>
-      item.type === "CLAIM_ACCEPTED" || item.type === "DELIVERY_VERIFIED",
+  const getVolunteerInfoState = (volunteer, returnTo = "/ngo") => ({
+    volunteer,
+    returnTo,
+  });
+
+  const sortedNotifications = useMemo(
+    () =>
+      [...notifications].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+      ),
+    [notifications],
   );
 
+  const claimStatusNotice = sortedNotifications.find(
+    (item) =>
+      item.type === "CLAIM_ACCEPTED" ||
+      item.type === "CLAIM_CANCELLED" ||
+      item.type === "PICKUP_VERIFIED" ||
+      item.type==="CLAIM_CREATED" ||
+      item.type === "DELIVERY_VERIFIED",
+  );
+
+  const deliveryHandoffNotices = sortedNotifications.filter(
+    (item) =>
+      item.type === "DELIVERY_VERIFIED" ||
+      item.type === "PICKUP_VERIFIED" ||
+      item.type === "CLAIM_ACCEPTED" ||
+      item.type === "CLAIM_CANCELLED",
+  );
+
+  const currentClaimStatus =
+    claimStatusNotice?.type === "CLAIM_CANCELLED"
+      ? "cancelled"
+      : claimStatusNotice?.type === "CLAIM_ACCEPTED"
+        ? "accepted"
+        : claimStatusNotice?.type === "PICKUP_VERIFIED"
+          ? "picked up"
+          : claimStatusNotice?.type === "DELIVERY_VERIFIED"
+            ? "delivered"
+            : claimStatusNotice?.type === "CLAIM_CREATED"
+              ? "pending"
+              : null;
+
   const isSelectedClaimed =
-    claim?.foodId &&
+    claimStatusNotice?.foodId &&
     selectedFood?._id &&
-    claim.status !== "cancelled" &&
-    String(claim.foodId) === String(selectedFood._id);
+    String(claimStatusNotice.foodId) === String(selectedFood._id) &&
+    currentClaimStatus !== "cancelled";
 
   const onSubmit = async (values) => {
     const payload = {
@@ -640,10 +676,10 @@ const NgoMap = () => {
                   <button
                     type="button"
                     onClick={handleLocateUser}
-                    className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-2)] px-4 py-2 text-xs font-semibold text-[var(--accent-2)]"
+                    className="inline-flex items-center gap-2 rounded-full border border-(--accent-2) bg-white/80 px-4 py-2 text-xs font-semibold text-(--accent-2) "
                   >
                     <LocateFixed className="h-4 w-4" />
-                    Locate me
+                    Locate
                   </button>
                 </div>
                 <div className="mt-4 grid gap-3">
@@ -813,28 +849,26 @@ const NgoMap = () => {
 
               <div className="glass-panel rounded-3xl border border-white/70 p-6">
                 <h3 className="font-display text-xl">Claim status</h3>
-                {claim ? (
+                {currentClaimStatus ? (
                   <div className="mt-4 space-y-3 text-sm">
                     <div className="rounded-2xl border border-white/80 bg-white/80 p-4">
                       <p className="font-semibold text-[var(--ink)]">
-                        {claimedFood?.name ||
-                          selectedFood?.name ||
-                          "Claimed food"}
+                        {selectedFood?.name || "Claimed food"}
                       </p>
-                      <p className="mt-1 text-xs text-[var(--muted)]">
-                        Claim ID: {claim._id}
-                      </p>
+                      {claimStatusNotice?.claimId && (
+                        <p className="mt-1 text-xs text-(--muted)">
+                          Claim ID: {claimStatusNotice.claimId}
+                        </p>
+                      )}
                       <span className="mt-3 inline-flex rounded-full bg-[var(--accent-2)] px-3 py-1 text-xs font-semibold uppercase text-white">
-                        {claim.status}
+                        {currentClaimStatus}
                       </span>
                     </div>
-                    {getRestaurantId(
-                      (claimedFood || selectedFood)?.restaurantId,
-                    ) ? (
+                    {getRestaurantId(selectedFood?.restaurantId) ? (
                       <Link
-                        to={`/restaurant-info/${getRestaurantId((claimedFood || selectedFood)?.restaurantId)}`}
+                        to={`/restaurant-info/${getRestaurantId(selectedFood?.restaurantId)}`}
                         state={getRestaurantInfoState(
-                          (claimedFood || selectedFood)?.restaurantId,
+                          selectedFood?.restaurantId,
                           "/ngo",
                           claim.restaurantId,
                         )}
@@ -844,16 +878,15 @@ const NgoMap = () => {
                         <ArrowUpRight className="h-3.5 w-3.5" />
                       </Link>
                     ) : null}
-                    {claim.status !== "delivered" &&
-                      claim.status !== "cancelled" && (
-                        <button
-                          onClick={handleCancelClaim}
-                          disabled={claimLoading}
-                          className="w-full rounded-full border border-red-400 px-4 py-2 text-sm font-semibold text-red-500"
-                        >
-                          Cancel claim
-                        </button>
-                      )}
+                    {currentClaimStatus == "pending" && (
+                      <button
+                        onClick={handleCancelClaim}
+                        disabled={claimLoading}
+                        className="w-full rounded-full border border-red-400 px-4 py-2 text-sm font-semibold text-red-500"
+                      >
+                        Cancel claim
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <p className="mt-2 text-sm text-[var(--muted)]">
@@ -868,32 +901,64 @@ const NgoMap = () => {
                     {volunteers.length} volunteers alerted.
                   </p>
                 ) : null}
-                {deliveryNotices.length ? (
+                {deliveryHandoffNotices.length > 0 && (
                   <div className="mt-5 space-y-3">
                     <p className="text-xs font-semibold uppercase text-[var(--muted)]">
                       Delivery handoff
                     </p>
-                    {deliveryNotices.map((notice) => (
+
+                    {deliveryHandoffNotices.map((notice) => (
                       <div
-                        key={notice.id}
-                        className="rounded-2xl border border-white/80 bg-white/80 p-3 text-sm"
+                        key={notice._id || notice.id}
+                        className="rounded-2xl border flex flex-col gap-2 border-orange-100 bg-white p-4 text-sm shadow-md ring-1 ring-orange-50"
                       >
                         <p className="font-semibold text-[var(--ink)]">
-                          {notice.message || "Claim update"}
+                          {notice.message || "Delivery update"}
                         </p>
+
+                        <p className="text-xs text-[var(--muted)]">
+                          Food: {notice.foodName || notice.foodId || "-"}
+                        </p>
+
+                        {notice.volunteerId ? (
+                          <Link
+                            to={`/volunteer-info/${notice.volunteerId}`}
+                            state={getVolunteerInfoState(notice.volunteer)}
+                            className="rounded-full w-30 border border-(--accent) px-4 py-2 text-xs font-semibold text-(--accent)"
+                          >
+                            Volunteer info
+                          </Link>
+                        ) : null}
+
+                        {notice.restaurantId ? (
+                          <Link
+                            to={`/restaurant-info/${getRestaurantId(
+                              notice.restaurantId,
+                            )}`}
+                            state={getRestaurantInfoState(
+                              notice.restaurantId,
+                              "/ngo",
+                              notice.restaurantId,
+                            )}
+                            className="rounded-full w-32 border border-(--accent) px-4 py-2 text-xs font-semibold text-(--accent)"
+                          >
+                            Restaurant info
+                          </Link>
+                        ) : null}
+
                         {notice.deliveryToken && (
                           <div className="mt-3">
                             <TokenQrCard
                               title="Delivery token"
                               token={notice.deliveryToken}
-                              description="Show this QR to the volunteer at final handoff, or copy the token manually for delivery verification."
+                              description="Show this QR to the volunteer at final handoff."
                             />
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
-                ) : null}
+                )}
                 <Link
                   to="/ngo/claims"
                   className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-[var(--accent-2)] px-4 py-2 text-sm font-semibold text-[var(--accent-2)]"

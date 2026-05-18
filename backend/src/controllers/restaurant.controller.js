@@ -1,23 +1,23 @@
 const restaurantModel = require('../models/restaurant.model');
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
-const {uploadImage,deleteImage} = require('../services/imagekit.service');
+const { uploadImage, deleteImage } = require('../services/imagekit.service');
 
 async function createRestaurant(req, res) {
     try {
         const { address, foodLicenseNumber, openingTime, closingTime, restaurantName, restaurantDescription } = req.body;
-        if(req.user.isVerified === false){
+        if (req.user.isVerified === false) {
             return res.status(403).json({ message: "Please verify your email address before creating a restaurant" });
         }
-        if (!address || !foodLicenseNumber || !openingTime || !closingTime|| !restaurantName || !restaurantDescription) {
+        if (!address || !foodLicenseNumber || !openingTime || !closingTime || !restaurantName || !restaurantDescription) {
             return res.status(400).json({ message: "All fields are required" });
         }
         const existingRestaurant = await restaurantModel.findOne({ userId: req.user.id });
         if (existingRestaurant) {
             return res.status(400).json({ message: "Restaurant already exists for this user" });
         }
-        let restaurantPicture=null;
-        if(req.file){
+        let restaurantPicture = null;
+        if (req.file) {
             restaurantPicture = await uploadImage({ buffer: req.file.buffer });
         }
         const formattedAddress = `${address.street}, ${address.area}, ${address.landmark}, ${address.city}, ${address.state}, ${address.pincode}, ${address.country}`;
@@ -90,7 +90,7 @@ async function updateRestaurant(req, res) {
         restaurant.closingTime = closingTime || restaurant.closingTime;
         restaurant.restaurantName = restaurantName || restaurant.restaurantName;
         restaurant.restaurantDescription = restaurantDescription || restaurant.restaurantDescription;
-        if(req.file){
+        if (req.file) {
             restaurant.restaurantPicture = await uploadImage({ buffer: req.file.buffer });
         }
         await restaurant.save();
@@ -107,7 +107,7 @@ async function deleteRestaurant(req, res) {
         if (!restaurant) {
             return res.status(404).json({ message: "Restaurant not found" });
         }
-        if(restaurant.restaurantPicture){
+        if (restaurant.restaurantPicture) {
             await deleteImage(restaurant.restaurantPicture.fileId);
         }
         res.status(200).json({ message: "Restaurant deleted successfully" });
@@ -116,22 +116,54 @@ async function deleteRestaurant(req, res) {
     }
 }
 
-async function getRestaurantById(req,res){
+async function getRestaurantById(req, res) {
     try {
-        const {restaurantId} = req.params
-        const restaurant = await restaurantModel.findOne({_id:restaurantId})
-        if(!restaurant){
+        const { restaurantId } = req.params
+        const restaurant = await restaurantModel.findOne({ _id: restaurantId })
+        if (!restaurant) {
             return res.status(404).json({
-                message : "Restaurant not found"
+                message: "Restaurant not found"
             })
         }
         return res.status(200).json({
-            message : "Fetched Restaurant information Successfully",
+            message: "Fetched Restaurant information Successfully",
             restaurant
         })
     } catch (error) {
-        return res.status(400).json({message: error.message})
+        return res.status(400).json({ message: error.message })
     }
 }
 
-module.exports = { createRestaurant, getAllRestaurants, getUserRestaurant, updateRestaurant, deleteRestaurant,getRestaurantById };
+async function getTopRestaurants(req, res) {
+    try {
+
+        const restaurants = await restaurantModel.aggregate([
+            {
+                $sort: { totalDonations: -1 }
+            },
+            {
+                $limit: 10
+            },
+            {
+                $project: {
+                    restaurantName: 1,
+                    restaurantPicture: 1,
+                    totalDonations: 1
+                }
+            }
+        ]);
+
+        return res.status(200).json({
+            message: "Fetched Top Restaurants Successfully",
+            restaurants
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        });
+    }
+}
+
+
+module.exports = { createRestaurant, getAllRestaurants, getUserRestaurant, updateRestaurant, deleteRestaurant, getRestaurantById, getTopRestaurants };

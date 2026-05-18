@@ -129,7 +129,7 @@ const RestaurantClaims = () => {
                 ) : null}
 
                 <div className="mt-4 grid gap-2">
-                    {foodItem?._id ? (
+                    {foodItem?._id && claimItem.status !== "cancelled" && claimItem.status !== "delivered" ? (
                         <Link
                             to={`/restaurant/track/${foodItem._id}`}
                             className="inline-flex w-full items-center justify-center rounded-full bg-[var(--accent-2)] px-4 py-2 text-sm font-semibold text-white"
@@ -258,7 +258,7 @@ const RestaurantClaims = () => {
                     </div>
                     <span className="text-sm text-[var(--muted)]">{completedClaims.length} delivered</span>
                 </div>
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <div className="mt-5 grid gap-4 md:grid-cols-2 overflow-y-auto h-96">
                     {completedClaims.map(renderClaimCard)}
                     {!completedClaims.length ? (
                         <p className="text-sm text-[var(--muted)]">
@@ -275,7 +275,7 @@ const RestaurantClaims = () => {
                     </div>
                     <span className="text-sm text-[var(--muted)]">{cancelledClaims.length} cancelled</span>
                 </div>
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <div className="mt-5 grid gap-4 md:grid-cols-2 overflow-y-auto h-96">
                     {cancelledClaims.map(renderClaimCard)}
                     {!cancelledClaims.length ? (
                         <p className="text-sm text-[var(--muted)]">

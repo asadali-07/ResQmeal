@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const volunteerSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "users",
     required: true,
   },
 
@@ -37,6 +37,7 @@ const volunteerSchema = new mongoose.Schema({
 });
 
 volunteerSchema.index({ currentLocation: "2dsphere" });
+volunteerSchema.index({ totalDeliveries: -1 });
 
 const volunteerModel = mongoose.model("volunteers",volunteerSchema)
 

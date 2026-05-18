@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const ngoSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "users",
     required: true,
   },
 
@@ -36,20 +36,19 @@ const ngoSchema = new mongoose.Schema({
 
   location: {
     type: {
-        type: String, 
-        enum: ['Point'], 
-        required: true
-      },
-      coordinates: {
-        type: [Number],
-        required: true
-      }
+      type: String,
+      enum: ['Point'],
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
   },
 
   registrationNumber: String,
 
   capacity: Number,
-
   totalMealsReceived: {
     type: Number,
     default: 0,
@@ -57,7 +56,8 @@ const ngoSchema = new mongoose.Schema({
 });
 
 ngoSchema.index({ location: "2dsphere" });
+ngoSchema.index({ totalMealsReceived: -1 });
 
-const ngoModel = mongoose.model('ngos',ngoSchema)
+const ngoModel = mongoose.model('ngos', ngoSchema)
 
 module.exports = ngoModel

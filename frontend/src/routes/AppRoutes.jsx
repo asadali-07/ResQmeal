@@ -17,6 +17,9 @@ import RestaurantTracking from "../pages/RestaurantTracking";
 import RestaurantLocation from "../pages/RestaurantLocation";
 import VolunteerEntry from "../pages/VolunteerEntry";
 import VolunteerRoutePreview from "../pages/VolunteerRoutePreview";
+import NgoInfo from "../pages/NgoInfo";
+import VolunteerInfo from "../pages/VolunteerInfo";
+import LeaderBoard from "../pages/LeaderBoard";
 
 const AppRoutes = () => {
     return (
@@ -27,6 +30,8 @@ const AppRoutes = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/restaurant" element={<RestaurantEntry />} />
             <Route path="/restaurant-info/:restaurantId" element={<RestaurantInfo />} />
+            <Route path="/ngo-info/:ngoId" element={<NgoInfo />} />
+            <Route path="/volunteer-info/:volunteerId" element={<VolunteerInfo />} />
             <Route path="/restaurant/food" element={<FoodManager />} />
             <Route path="/restaurant/claims" element={<RestaurantClaims />} />
             <Route path="/restaurant/location" element={<RestaurantLocation />} />
@@ -38,6 +43,7 @@ const AppRoutes = () => {
             <Route path="/volunteer" element={<VolunteerEntry />} />
             <Route path="/volunteer/route/:foodId" element={<VolunteerRoutePreview />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/leaderboard" element={<LeaderBoard />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

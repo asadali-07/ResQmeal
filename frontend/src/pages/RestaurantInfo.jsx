@@ -64,7 +64,7 @@ const RestaurantInfo = () => {
     const restaurant = selectedRestaurant || fallbackRestaurant;
     const address = useMemo(() => formatAddress(restaurant?.address), [restaurant]);
     const restaurantOwnerId = getOwnerId(restaurant);
-    const canMessageRestaurant = userInfo?.role === "ngo" && restaurantOwnerId;
+    const canMessageRestaurant = userInfo?.role === "ngo" || userInfo?.role === "volunteer" && restaurantOwnerId;
 
     const handleMessageRestaurant = () => {
         if (!canMessageRestaurant) {
@@ -161,7 +161,7 @@ const RestaurantInfo = () => {
                         <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
                             {restaurant.restaurantDescription || "No description has been added yet."}
                         </p>
-                        {userInfo?.role === "ngo" ? (
+                        {userInfo?.role === "ngo" || userInfo?.role === "volunteer" ? (
                             <button
                                 type="button"
                                 onClick={handleMessageRestaurant}
@@ -172,7 +172,7 @@ const RestaurantInfo = () => {
                                 Message restaurant
                             </button>
                         ) : null}
-                        {userInfo?.role === "ngo" && !restaurantOwnerId ? (
+                        {userInfo?.role === "ngo" || userInfo?.role === "volunteer" && !restaurantOwnerId ? (
                             <p className="mt-3 text-xs text-[var(--muted)]">
                                 Messaging will appear once this restaurant includes its owner account ID.
                             </p>
@@ -200,6 +200,12 @@ const RestaurantInfo = () => {
                                 <span className="text-[var(--muted)]">Food license</span>
                                 <span className="font-semibold text-[var(--ink)]">
                                     {restaurant.foodLicenseNumber || "-"}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
+                                <span className="text-[var(--muted)]">Total Donations</span>
+                                <span className="font-semibold text-[var(--ink)]">
+                                    {restaurant.totalDonations || "0"}
                                 </span>
                             </div>
                         </div>

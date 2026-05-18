@@ -30,6 +30,7 @@ const Account = () => {
     (state) => state.restaurantReducer,
   );
   const { ngo, loading: ngoLoading } = useSelector((state) => state.ngoReducer);
+  const { volunteer } = useSelector((state) => state.volunteerReducer);
   const [otp, setOtp] = useState("");
   const { register, handleSubmit, reset, watch } = useForm();
   const selectedImage = watch("profileImage");
@@ -305,6 +306,22 @@ const Account = () => {
                   {isEmailVerified ? "Complete" : "Pending"}
                 </span>
               </div>
+              {userInfo.role === "volunteer" && (
+                <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
+                  <span>Total deliveries</span>
+                  <span className="font-semibold text-(--ink)">
+                    {volunteer?.totalDeliveries || 0}
+                  </span>
+                </div>
+              )}
+              {userInfo.role === "volunteer" && (
+                <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
+                  <span>Vehicle Type</span>
+                  <span className="font-semibold text-(--ink)">
+                    {volunteer?.vehicleType}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
                 <span>Main workspace</span>
                 <Link to={roleHome} className="font-semibold text-(--accent-2)">
@@ -345,6 +362,12 @@ const Account = () => {
                       {restaurant.openingTime && restaurant.closingTime
                         ? `${restaurant.openingTime} - ${restaurant.closingTime}`
                         : "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
+                    <span>totalDonations</span>
+                    <span className="font-semibold text-(--ink)">
+                      {restaurant.totalDonations} Meals
                     </span>
                   </div>
                   {restaurantAddress ? (
@@ -426,6 +449,14 @@ const Account = () => {
                     </span>
                   </div>
 
+                  <div className="flex items-center justify-between rounded-2xl border border-white/80 bg-white/80 px-4 py-3">
+                    <span>totalMealsReceived</span>
+
+                    <span className="font-semibold text-(--ink)">
+                      {ngo.totalMealsReceived} Meals
+                    </span>
+                  </div>
+
                   {/* Address */}
                   {ngoAddress ? (
                     <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-(--muted)">
@@ -435,17 +466,17 @@ const Account = () => {
 
                   <div className="grid gap-2 sm:grid-cols-2">
                     <Link
-                      to="/ngo/location"
+                      to="/ngo"
                       className="inline-flex items-center justify-center rounded-full bg-(--accent-2) px-4 py-2 text-sm font-semibold text-white"
                     >
-                      Show NGO location
+                      Show NGO Map
                     </Link>
 
                     <Link
-                      to="/ngo/requests"
+                      to="/ngo/claims"
                       className="inline-flex items-center justify-center rounded-full border border-(--accent) px-4 py-2 text-sm font-semibold text-(--accent)"
                     >
-                      Open requests
+                      Open claims
                     </Link>
                   </div>
                 </div>

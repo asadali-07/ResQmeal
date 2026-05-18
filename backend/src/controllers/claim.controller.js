@@ -5,6 +5,7 @@ const claimModel = require('../models/claim.model');
 const foodModel = require('../models/food.model');
 const volunteerModel = require('../models/volunteer.model');
 const restaurantModel = require('../models/restaurant.model');
+const ngoModel = require('../models/ngo.model');
 
 const { sendNotification } = require('../services/notification.service');
 
@@ -29,7 +30,7 @@ async function createClaim(req, res) {
                 {
                     _id: foodId,
                     status: 'available',
-                    expiryTime: { $gt: new Date() } 
+                    expiryTime: { $gt: new Date() }
                 },
                 {
                     $set: {
@@ -37,7 +38,7 @@ async function createClaim(req, res) {
                     }
                 },
                 {
-                    new: true,
+                    returnDocument: "after",
                     session
                 }
             );
@@ -123,7 +124,24 @@ async function createClaim(req, res) {
 
             claimId: createdClaim._id,
 
-            foodId: food._id
+            foodId: food._id,
+
+            ngoId: ngoId,
+
+        });
+        await sendNotification({
+
+            type: "CLAIM_CREATED",
+
+            senderId: ngoId,
+
+            receiverId: ngoId,
+
+            message: `You have claimed the food item ${food.name}`,
+
+            claimId: createdClaim._id,
+
+            foodId: food._id,
 
         });
 
@@ -164,7 +182,7 @@ async function getNgoClaimedFoods(req, res) {
         const ngoId = req.user.id;
 
         const claims = await claimModel
-            .find({ ngoId, status: { $in: ['pending', 'accepted', 'picked_up','delivered','cancelled'] } })
+            .find({ ngoId, status: { $in: ['pending', 'accepted', 'picked_up', 'delivered', 'cancelled'] } })
             .sort({ createdAt: -1 })
             .populate({
                 path: "foodId",
@@ -196,7 +214,7 @@ async function getRestaurantClaims(req, res) {
         const claims = await claimModel
             .find({
                 restaurantId,
-                status: { $in: ['pending', 'accepted', 'picked_up','delivered','cancelled'] }
+                status: { $in: ['pending', 'accepted', 'picked_up', 'delivered', 'cancelled'] }
             })
             .sort({ createdAt: -1 })
             .populate({
@@ -225,7 +243,7 @@ async function getRestaurantClaims(req, res) {
 async function getVolunteerAcceptedClaims(req, res) {
     try {
         const volunteerUserId = req.user.id;
-        
+
 
         const claims = await claimModel
             .find({
@@ -359,7 +377,7 @@ async function acceptClaim(req, res) {
             },
 
             {
-                new: true
+                returnDocument: "after"
             }
 
         );
@@ -390,7 +408,11 @@ async function acceptClaim(req, res) {
 
             foodId: claim.foodId,
 
-            deliveryToken
+            deliveryToken,
+
+            volunteerId,
+
+            restaurantId: claim.restaurantId.toString()
 
         });
 
@@ -408,7 +430,11 @@ async function acceptClaim(req, res) {
 
             foodId: claim.foodId,
 
-            pickupToken
+            pickupToken,
+
+            volunteerId,
+
+            restaurantId: claim.restaurantId.toString()
 
         });
 
@@ -451,7 +477,6 @@ async function verifyPickup(req, res) {
             pickupToken,
             process.env.JWT_SECRET
         );
-
         if (decoded.claimId !== claimId) {
 
             return res.status(400).json({
@@ -482,7 +507,7 @@ async function verifyPickup(req, res) {
             },
 
             {
-                new: true
+                returnDocument: "after"
             }
 
         );
@@ -521,7 +546,27 @@ async function verifyPickup(req, res) {
 
             claimId: claim._id,
 
-            foodId: claim.foodId
+            foodId: claim.foodId,
+
+            volunteerId
+
+        });
+
+        await sendNotification({
+
+            type: "PICKUP_VERIFIED",
+
+            senderId: volunteerId,
+
+            receiverId: claim.restaurantId.toString(),
+
+            message: `Pickup has been verified`,
+
+            claimId: claim._id,
+
+            foodId: claim.foodId,
+
+            volunteerId
 
         });
 
@@ -619,7 +664,7 @@ async function verifyDelivery(req, res) {
             },
 
             {
-                new: true
+                returnDocument: "after"
             }
 
         );
@@ -636,15 +681,45 @@ async function verifyDelivery(req, res) {
 
         }
 
-        await foodModel.findByIdAndUpdate(
-
+        const updatedFood = await foodModel.findByIdAndUpdate(
             claim.foodId,
-
-            {
-                status: 'delivered'
-            }
-
+            { status: 'delivered' },
+            { returnDocument: 'after' }
         );
+
+        await Promise.all([
+
+            // Volunteer stats
+            volunteerModel.findOneAndUpdate(
+                { userId: volunteerId },
+                {
+                    $inc: {
+                        totalDeliveries: 1
+                    }
+                }
+            ),
+
+            // Restaurant stats
+            restaurantModel.findOneAndUpdate(
+                { userId: claim.restaurantId },
+                {
+                    $inc: {
+                        totalDonations: updatedFood.quantity || 1
+                    }
+                }
+            ),
+
+            // NGO stats
+            ngoModel.findOneAndUpdate(
+                { userId: claim.ngoId },
+                {
+                    $inc: {
+                        totalMealsReceived: updatedFood.quantity || 1
+                    }
+                }
+            )
+
+        ]);
 
         await sendNotification({
 
@@ -658,7 +733,27 @@ async function verifyDelivery(req, res) {
 
             claimId: claim._id,
 
-            foodId: claim.foodId
+            foodId: claim.foodId,
+
+            volunteerId
+
+        });
+
+        await sendNotification({
+
+            type: "DELIVERY_VERIFIED",
+
+            senderId: volunteerId,
+
+            receiverId: claim.restaurantId.toString(),
+
+            message: `Delivery has been verified`,
+
+            claimId: claim._id,
+
+            foodId: claim.foodId,
+
+            volunteerId
 
         });
 
@@ -741,7 +836,9 @@ async function cancelClaim(req, res) {
 
         if (
             claim.status === 'delivered' ||
-            claim.status === 'cancelled'
+            claim.status === 'cancelled' ||
+            claim.status === 'picked_up' ||
+            claim.status === 'accepted'
         ) {
 
             return res.status(400).json({
@@ -789,6 +886,22 @@ async function cancelClaim(req, res) {
             });
 
         }
+
+        await sendNotification({
+
+            type: "CLAIM_CANCELLED",
+
+            senderId: ngoId,
+
+            receiverId: claim.restaurantId.toString(),
+
+            message: `Claim has been cancelled by NGO`,
+
+            claimId: claim._id,
+
+            foodId: claim.foodId
+
+        });
 
         return res.status(200).json({
 

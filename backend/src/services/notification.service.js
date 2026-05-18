@@ -1,4 +1,4 @@
-const { getUserSocketId, io } = require("../socket/socket");
+const { getUserSocketId,getIO} = require("../socket/socket");
 
 
 async function sendNotification(payload) {
@@ -7,7 +7,7 @@ async function sendNotification(payload) {
     try {
         const receiverSocketId = getUserSocketId (payload.receiverId);
         if (receiverSocketId) {
-            io.to(receiverSocketId).emit("notification", payload);
+            getIO().to(receiverSocketId).emit("notification", payload);
         }
 
     } catch (err) {

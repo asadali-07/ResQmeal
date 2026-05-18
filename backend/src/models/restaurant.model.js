@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const restaurantSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "users",
     required: true,
   },
 
@@ -57,6 +57,7 @@ const restaurantSchema = new mongoose.Schema({
 });
 
 restaurantSchema.index({ location: "2dsphere" });
+restaurantSchema.index({ totalDonations: -1 });
 
 const restaurantModel = mongoose.model("restaurants", restaurantSchema)
 
