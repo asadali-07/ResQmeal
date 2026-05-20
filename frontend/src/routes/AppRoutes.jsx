@@ -24,6 +24,7 @@ const VolunteerRoutePreview = lazy(
 const NgoInfo = lazy(() => import("../pages/NgoInfo"));
 const VolunteerInfo = lazy(() => import("../pages/VolunteerInfo"));
 const LeaderBoard = lazy(() => import("../pages/LeaderBoard"));
+const AdminDashboard = lazy(() => import("../pages/AdminDashboard"));
 
 const AppRoutes = () => {
   return (
@@ -61,6 +62,7 @@ const AppRoutes = () => {
         />
         <Route path="/messages" element={<Messages />} />
         <Route path="/leaderboard" element={<LeaderBoard />} />
+        <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

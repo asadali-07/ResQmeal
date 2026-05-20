@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const foodModel = require('../models/food.model');
 
 const expireFoodJob = () => {
-    cron.schedule('*/5 * * * *', async () => {
+    cron.schedule('0 */2 * * *', async () => {
         try {
             const result = await foodModel.updateMany(
                 {

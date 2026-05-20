@@ -29,7 +29,9 @@ const Register = () => {
                 ? "/restaurant"
                 : userInfo.role === "ngo"
                   ? "/ngo"
-                  : "/volunteer";
+                  : userInfo.role === "volunteer"
+                    ? "/volunteer"
+                    : "/dashboard";
             navigate(rolePath, { replace: true });
         }
     }, [isAuthenticated, userInfo, navigate]);

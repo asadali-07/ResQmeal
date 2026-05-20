@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserRestaurant } from "../store/restaurantSlice";
@@ -16,7 +16,7 @@ const roleHomeMap = {
   restaurant: "/restaurant",
   ngo: "/ngo",
   volunteer: "/volunteer",
-  admin: "/",
+  admin: "/dashboard",
 };
 
 const Account = () => {
@@ -32,10 +32,13 @@ const Account = () => {
   const { ngo, loading: ngoLoading } = useSelector((state) => state.ngoReducer);
   const { volunteer } = useSelector((state) => state.volunteerReducer);
   const [otp, setOtp] = useState("");
-  const { control, register, handleSubmit, reset } = useForm();
-  const selectedImage = useWatch({
-    control,
-    name: "profileImage",
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: {
+      name: "",
+      phone: "",
+    },
   });
 
   useEffect(() => {
@@ -51,7 +54,7 @@ const Account = () => {
         phone: userInfo.phone || "",
       });
     }
-  }, [reset, userInfo]);
+  }, [userInfo, reset]);
 
   useEffect(() => {
     if (userInfo?.role === "restaurant") {
@@ -109,10 +112,12 @@ const Account = () => {
     const payload = {
       name: values.name,
       phone: values.phone,
-      profileImage: values.profileImage?.[0],
+      profileImage: selectedFile,
     };
 
     await dispatch(updateProfile(payload));
+
+    setIsEditing(false);
   };
 
   const handleSendOtp = async () => {
@@ -175,77 +180,138 @@ const Account = () => {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
         <div className="glass-panel rounded-3xl border border-white/70 p-6">
-          <h3 className="font-display text-xl">Profile details</h3>
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-            <div>
-              {/* Clickable profile image */}
-              <div className="mt-3 flex justify-center">
-                <img
-                  src={
-                    selectedImage?.[0]
-                      ? URL.createObjectURL(selectedImage[0])
-                      : userInfo?.profileImage?.url ||
-                        "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                  }
-                  alt="Profile"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="h-28 w-28 cursor-pointer rounded-full border-4 border-white object-cover shadow-lg hover:opacity-80"
-                />
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-xl">Profile Details</h3>
+          </div>
+
+          <div className="mt-6">
+            {!isEditing ? (
+              // ================= VIEW MODE =================
+              <div className="space-y-5">
+                <div className="flex flex-col items-center">
+                  <img
+                    src={
+                      userInfo?.profileImage?.url ||
+                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    }
+                    alt="Profile"
+                    className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-lg"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <h3 className="text-lg">{userInfo?.name}</h3>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <h3 className="text-lg">{userInfo?.email}</h3>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <h3 className="text-lg">
+                    {userInfo?.phone || "Not added"}
+                  </h3>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="rounded-full bg-(--accent) px-5 py-2 text-sm font-semibold text-white"
+                >
+                  Edit Profile
+                </button>
               </div>
+            ) : (
+              // ================= EDIT MODE =================
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <div className="flex flex-col items-center">
+                  <img
+                    src={
+                      selectedFile
+                        ? URL.createObjectURL(selectedFile)
+                        : userInfo?.profileImage?.url ||
+                          "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    }
+                    alt="Profile"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-28 w-28 cursor-pointer rounded-full border-4 border-white object-cover shadow-lg hover:opacity-80"
+                  />
 
-              <p className="mt-2 text-center text-xs text-gray-500">
-                Click image to change
-              </p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Click image to change
+                  </p>
 
-              {/* Hidden input */}
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                {...register("profileImage")}
-                ref={(e) => {
-                  register("profileImage").ref(e);
-                  fileInputRef.current = e;
-                }}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-semibold">Name</label>
-              <input
-                type="text"
-                value={userInfo.name || ""}
-                {...register("name", { required: true })}
-                className="mt-2 w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-semibold">Email</label>
-              <input
-                type="email"
-                value={userInfo.email || ""}
-                disabled
-                className="mt-2 w-full rounded-2xl border border-white/70 bg-white/60 px-4 py-3 text-(--muted)"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-semibold">Phone</label>
-              <input
-                type="text"
-                value={userInfo.phone || ""}
-                {...register("phone", { required: true })}
-                className="mt-2 w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
-              />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-(--accent) px-5 py-3 text-sm font-semibold text-white"
-            >
-              {loading ? "Saving..." : "Update profile"}
-            </button>
-          </form>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setSelectedFile(e.target.files[0]);
+                      }
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold">Name</label>
+
+                  <input
+                    type="text"
+                    {...register("name")}
+                    className="mt-2 w-full rounded-2xl border border-white/70 px-4 py-3"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold">Phone</label>
+
+                  <input
+                    type="text"
+                    {...register("phone")}
+                    className="mt-2 w-full rounded-2xl border border-white/70 px-4 py-3"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white"
+                  >
+                    {loading ? "Saving..." : "Save"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setSelectedFile(null);
+
+                      reset({
+                        name: userInfo?.name || "",
+                        phone: userInfo?.phone || "",
+                      });
+                    }}
+                    className="rounded-full border border-red-400 px-5 py-2 text-sm font-semibold text-red-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
+
+        {error && (
+          <div className="rounded-2xl border border-red-400 bg-red-50 px-4 py-3 text-sm text-red-500">
+            {error}
+          </div>
+        )}
 
         <div className="space-y-6">
           <div className="glass-panel rounded-3xl border border-white/70 p-6">

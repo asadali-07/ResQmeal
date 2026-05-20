@@ -8,6 +8,7 @@ import claimSlice from './claimSlice';
 import messageSlice from './messageSlice';
 import notificationSlice from './notificationSlice';
 import socketSlice from './socketSlice';
+import adminReducer from "./adminSlice";
 
 export const store = configureStore({
     reducer: {
@@ -20,5 +21,6 @@ export const store = configureStore({
         messageReducer: messageSlice,
         notificationReducer: notificationSlice,
         socketReducer: socketSlice,
+        adminReducer: adminReducer,
     },
 });

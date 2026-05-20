@@ -9,8 +9,8 @@ ngoRouter.post('/', upload.single('ngoPicture'), createAuthMiddleware(["ngo"]),c
     .patch('/', upload.single('ngoPicture'), createAuthMiddleware(["ngo"]), updateNgo)
     .get('/',createAuthMiddleware(["ngo"]), getUserNgo)
     .get('/top',getTopNgos)
-    .get('/:ngoId', createAuthMiddleware(["volunteer","admin","restaurant"]), getNgoById)
     .get('/all', createAuthMiddleware(["admin"]), getAllNgos)
+    .get('/:ngoId', createAuthMiddleware(["volunteer","admin","restaurant"]), getNgoById)
     .delete('/:ngoId', createAuthMiddleware(["admin"]), deleteNgo);
     
 

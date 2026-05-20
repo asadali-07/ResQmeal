@@ -9,6 +9,9 @@ const bcrypt = require('bcryptjs')
 async function registerController(req, res) {
     try {
         const { name, email, password, phone, role } = req.body
+        if (role && role === "admin") {
+            return res.status(403).json({ message: "You are not allowed to register as admin" })
+        }
         const isUserExist = await userModel.findOne({ email })
         if (!name || !email || !password || !phone || !role) {
             return res.status(400).json({ message: "All fields are required" })

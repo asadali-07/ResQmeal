@@ -31,7 +31,7 @@ async function createVolunteer(req, res) {
 
 async function getAllVolunteers(req, res) {
     try {
-        const volunteers = await volunteerModel.find();
+        const volunteers = await volunteerModel.find().populate('userId', 'name email phone profileImage');
         res.status(200).json({ message: "Volunteers retrieved successfully", volunteers });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -53,7 +53,7 @@ async function getUserVolunteer(req, res) {
 async function getVolunteerById(req, res) {
     try {
         const { volunteerId } = req.params;
-        const volunteer = await volunteerModel.findOne({ userId: volunteerId }).populate('userId', 'name email phone profileImage');
+        const volunteer = await volunteerModel.findOne({ userId: volunteerId }).populate('userId', 'name email phone profileImage _id');
         if (!volunteer) {
             return res.status(404).json({ message: "Volunteer not found" });
         }
@@ -95,7 +95,7 @@ async function deleteVolunteer(req, res) {
 
 async function getAllAvailableVolunteers(req, res) {
     try {
-        const volunteers = await volunteerModel.find({ isAvailable: true });
+        const volunteers = await volunteerModel.find({ isAvailable: true }).populate('userId', 'name email phone profileImage _id');
         res.status(200).json({ message: "Available volunteers retrieved successfully", volunteers });
     }
     catch (error) {

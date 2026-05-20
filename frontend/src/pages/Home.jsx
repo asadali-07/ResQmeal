@@ -49,12 +49,6 @@ const Home = () => {
                             >
                                 Start as a partner
                             </NavLink>
-                            <NavLink
-                                to="/ngo"
-                                className="rounded-full border border-(--accent-2) px-5 py-3 text-sm font-semibold text-(--accent-2)"
-                            >
-                                View live map
-                            </NavLink>
                         </div>
                     </div>
                     <div className="rounded-3xl border border-white/70 bg-white/70 p-6">

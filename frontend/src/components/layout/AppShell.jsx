@@ -14,6 +14,7 @@ import {
   Trophy,
   Menu,
   X,
+  Lock,
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import { getUserInfo, logoutUser } from "../../store/userSlice";
@@ -59,15 +60,20 @@ const AppShell = ({ children }) => {
     if (role === "restaurant") {
       navItems.push({ to: "/restaurant/food", label: "Food", icon: Package });
       navItems.push({ to: "/restaurant/claims", label: "Claims", icon: Bell });
+      navItems.push({ to: "/messages", label: "Messages", icon: MessageSquare });
     }
     if (role === "ngo") {
       navItems.push({ to: "/ngo", label: "NGO Map", icon: HandHeart });
       navItems.push({ to: "/ngo/claims", label: "Claims", icon: Package });
+      navItems.push({ to: "/messages", label: "Messages", icon: MessageSquare });
     }
     if (role === "volunteer") {
       navItems.push({ to: "/volunteer", label: "Volunteer", icon: Truck });
+      navItems.push({ to: "/messages", label: "Messages", icon: MessageSquare });
     }
-    navItems.push({ to: "/messages", label: "Messages", icon: MessageSquare });
+    if (role === "admin") {
+      navItems.push({ to: "/dashboard", label: "Admin Dashboard", icon:  Lock });
+    }
     navItems.push({ to: "/account", label: "Account", icon: UserCircle });
   }
 
