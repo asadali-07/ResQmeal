@@ -164,7 +164,7 @@ const Messages = () => {
         </p>
       </div>
 
-      <div className="glass-panel grid h-180 overflow-hidden rounded-[36px] border border-white/70 lg:grid-cols-[360px_1fr]">
+      <div className="glass-panel grid overflow-hidden rounded-[36px] border border-white/70 lg:grid-cols-[360px_1fr]">
         <aside className="border-b border-white/70 bg-white/55 p-5 lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -254,7 +254,7 @@ const Messages = () => {
           </div>
         </aside>
 
-        <section className="flex h-180 min-h-0 flex-col overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(255,122,26,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,248,241,0.72))]">
+        <section className="flex flex-col overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(255,122,26,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,248,241,0.72))]">
           <div className="flex items-center gap-3 border-b border-white/70 bg-white/65 px-5 py-4 backdrop-blur">
             {selectedUser ? (
               getAvatarUrl(selectedUser) ? (
@@ -295,7 +295,7 @@ const Messages = () => {
           )}
 
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
+          <div className=" max-h-160 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
             {selectedUserId ? (
               <div className="space-y-3">
                 {messages.map((message) => {
@@ -398,7 +398,7 @@ const Messages = () => {
               </div>
             ) : null}
 
-            <div className="flex items-end gap-2 rounded-[30px] border border-white/80 bg-white px-3 py-2 shadow-sm">
+            <div className="flex items-end gap-2 rounded-[30px] border px-3 py-2 shadow-sm  border-orange-100 bg-white p-4 text-sm  ring-1 ring-orange-50">
               <input
                 ref={fileInputRef}
                 type="file"

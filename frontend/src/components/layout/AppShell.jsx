@@ -12,6 +12,8 @@ import {
   Bell,
   UserCircle,
   Trophy,
+  Menu,
+  X,
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import { getUserInfo, logoutUser } from "../../store/userSlice";
@@ -29,6 +31,7 @@ const AppShell = ({ children }) => {
   );
   const [showNotifications, setShowNotifications] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleClearNotifications = () => {
     dispatch(clearNotifications());
@@ -47,7 +50,10 @@ const AppShell = ({ children }) => {
   };
 
   const role = userInfo?.role;
-  const navItems = [{ to: "/", label: "Home", icon: MapPinned },{ to: "/leaderboard", label: "Leaderboard", icon: Trophy }];
+  const navItems = [
+    { to: "/", label: "Home", icon: MapPinned },
+    { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  ];
 
   if (isAuthenticated) {
     if (role === "restaurant") {
@@ -103,7 +109,7 @@ const AppShell = ({ children }) => {
       <div className="min-h-screen">
         <ToastContainer position="top-right" autoClose={3000} />
         <header className="sticky top-0 z-50 border-b border-white/60 bg-white/70 backdrop-blur">
-          <div className="mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-4 py-4 md:flex-nowrap">
+          <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 lg:px-6">
             <div className="flex items-center gap-3">
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-(--accent) text-white shadow-lg shadow-orange-200">
                 <MapPinned className="h-5 w-5" />
@@ -116,125 +122,158 @@ const AppShell = ({ children }) => {
               </div>
             </div>
 
-            <nav className="flex flex-wrap items-center gap-2 text-sm">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 rounded-full px-4 py-2 transition ${
-                        isActive
-                          ? "bg-(--accent-2) text-white"
-                          : "bg-white/70 text-(--ink) hover:bg-white"
-                      }`
-                    }
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </NavLink>
-                );
-              })}
-            </nav>
+            {/* Mobile Menu Toggle */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/80 text-(--ink) focus:outline-none"
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
+            </div>
 
-            <div className="flex items-center gap-3">
-              {isAuthenticated ? (
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowNotifications((value) => !value)}
-                      className="relative grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/80 text-(--ink)"
-                      title="Notifications"
+            {/* Nav & Actions Container */}
+            <div
+              className={`${
+                isMobileMenuOpen ? "flex" : "hidden"
+              } absolute left-0 top-full z-40 w-full flex-col gap-4 border-b border-white/60 bg-white/95 p-4 shadow-lg lg:static lg:z-auto lg:flex lg:w-auto lg:flex-row lg:items-center lg:gap-6 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}
+            >
+              <nav className="flex w-full flex-col gap-2 text-sm lg:w-auto lg:flex-row lg:items-center">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 rounded-full px-4 py-2 transition ${
+                          isActive
+                            ? "bg-(--accent-2) text-white"
+                            : "bg-white/70 text-(--ink) hover:bg-white"
+                        }`
+                      }
                     >
-                      <Bell className="h-4 w-4" />
-                      {notifications.length ? (
-                        <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-(--accent) px-1 text-[10px] font-semibold text-white">
-                          {notifications.length}
-                        </span>
-                      ) : null}
-                    </button>
-                    {showNotifications && (
-                      <div className="absolute right-0 top-12 z-50 w-80 rounded-3xl border border-white/80 bg-white p-4 shadow-2xl">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="font-display text-lg">Notifications</p>
-                          <button
-                            onClick={() => {
-                              if (
-                                userInfo?.role === "restaurant" ||
-                                userInfo?.role === "ngo"
-                              ) {
-                                setShowClearModal(true);
-                                setShowNotifications(false);
-                              } else {
-                                dispatch(clearNotifications());
-                                setShowNotifications(false);
-                              }
-                            }}
-                            className="text-xs font-semibold text-(--accent)"
-                          >
-                            Clear
-                          </button>
-                        </div>
-                        <div className="mt-3 max-h-80 space-y-2 overflow-auto">
-                          {notifications.map((item) => (
-                            <div
-                              key={item.id}
-                              className="rounded-2xl border border-orange-100 bg-orange-50/60 p-3 text-sm"
-                            >
-                              <p className="font-semibold text-(--ink)">
-                                {item.title ||
-                                  item.message ||
-                                  item.type ||
-                                  "Update"}
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </NavLink>
+                  );
+                })}
+              </nav>
+
+              <div className="flex w-full flex-col gap-3 border-t border-white/60 pt-4 lg:w-auto lg:flex-row lg:items-center lg:border-t-0 lg:pt-0">
+                {isAuthenticated ? (
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-3">
+                    <div className="flex items-center justify-between gap-3 lg:justify-end">
+                      <div className="relative flex justify-end">
+                        <button
+                          onClick={() =>
+                            setShowNotifications((value) => !value)
+                          }
+                          className="relative grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/80 text-(--ink)"
+                          title="Notifications"
+                        >
+                          <Bell className="h-4 w-4" />
+                          {notifications.length ? (
+                            <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-(--accent) px-1 text-[10px] font-semibold text-white">
+                              {notifications.length}
+                            </span>
+                          ) : null}
+                        </button>
+                        {showNotifications && (
+                          <div className="fixed inset-x-4 top-20 z-50 rounded-3xl border border-white/80 bg-white p-4 shadow-2xl sm:right-0 sm:left-auto sm:top-20 sm:w-80">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="font-display text-lg">
+                                Notifications
                               </p>
-                              <p className="mt-1 text-xs text-(--muted)">
-                                {item.message || item.type || "notification"}
-                              </p>
+                              <button
+                                onClick={() => {
+                                  if (
+                                    userInfo?.role === "restaurant" ||
+                                    userInfo?.role === "ngo"
+                                  ) {
+                                    setShowClearModal(true);
+                                    setShowNotifications(false);
+                                  } else {
+                                    dispatch(clearNotifications());
+                                    setShowNotifications(false);
+                                  }
+                                }}
+                                className="text-xs font-semibold text-(--accent)"
+                              >
+                                Clear
+                              </button>
                             </div>
-                          ))}
-                          {!notifications.length && (
-                            <p className="text-sm text-(--muted)">
-                              No notifications yet.
-                            </p>
-                          )}
-                        </div>
+                            <div className="mt-3 max-h-80 space-y-2 overflow-auto">
+                              {notifications.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="rounded-2xl border border-orange-100 bg-orange-50/60 p-3 text-sm"
+                                >
+                                  <p className="font-semibold text-(--ink)">
+                                    {item.title ||
+                                      item.message ||
+                                      item.type ||
+                                      "Update"}
+                                  </p>
+                                  <p className="mt-1 text-xs text-(--muted)">
+                                    {item.message ||
+                                      item.type ||
+                                      "notification"}
+                                  </p>
+                                </div>
+                              ))}
+                              {!notifications.length && (
+                                <p className="text-sm text-(--muted)">
+                                  No notifications yet.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <div className="text-right">
+                        <p className="text-sm font-semibold">
+                          {userInfo?.name || "Member"}
+                        </p>
+                        <p className="text-xs uppercase text-(--muted)">
+                          {userInfo?.role || "role"}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full rounded-full border border-(--accent) px-4 py-2 text-sm font-semibold text-(--accent) hover:bg-(--accent) hover:text-white lg:w-auto"
+                    >
+                      Log out
+                    </button>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold">
-                      {userInfo?.name || "Member"}
-                    </p>
-                    <p className="text-xs uppercase text-(--muted)">
-                      {userInfo?.role || "role"}
-                    </p>
+                ) : (
+                  <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+                    <NavLink
+                      to="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm font-semibold text-(--ink)"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      Login
+                    </NavLink>
+                    <NavLink
+                      to="/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-200"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Register
+                    </NavLink>
                   </div>
-                  <button
-                    onClick={handleLogout}
-                    className="rounded-full border border-(--accent) px-4 py-2 text-sm font-semibold text-(--accent) hover:bg-(--accent) hover:text-white"
-                  >
-                    Log out
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <NavLink
-                    to="/login"
-                    className="flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm font-semibold text-(--ink)"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    Login
-                  </NavLink>
-                  <NavLink
-                    to="/register"
-                    className="flex items-center gap-2 rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-200"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Register
-                  </NavLink>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </header>

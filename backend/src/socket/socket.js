@@ -48,6 +48,7 @@ function initSocket(server) {
         });
 
         socket.on("leave-room", (foodId) => {
+            console.log(`Leaving room: ${foodId}`);
             socket.leave(foodId);
         })
 

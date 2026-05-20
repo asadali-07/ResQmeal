@@ -132,7 +132,7 @@ const NgoClaims = () => {
                         </span>
                     </div>
                 </div>
-                {deliveryNotice?.deliveryToken ? (
+                {claimItem.status !== "delivered" && deliveryNotice?.deliveryToken ? (
                     <div className="mt-4">
                         <TokenQrCard
                             title="Delivery token"

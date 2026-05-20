@@ -177,11 +177,11 @@ const NgoTracking = () => {
 
                     <div className="glass-panel rounded-3xl border border-white/70 p-6">
                         <h3 className="font-display text-xl">Room updates</h3>
-                        <div className="mt-4 space-y-3">
+                        <div className="mt-4 space-y-3  overflow-y-auto max-h-72">
                             {roomNotices.map((notice) => (
                                 <div
                                     key={notice.id}
-                                    className="rounded-2xl border border-white/80 bg-white/80 p-4 text-sm"
+                                    className="rounded-2xl border flex flex-col gap-2 border-orange-100 bg-white p-4 text-sm shadow-md ring-1 ring-orange-50"
                                 >
                                     <p className="font-semibold text-(--ink)">
                                         {notice.message || "Room update"}

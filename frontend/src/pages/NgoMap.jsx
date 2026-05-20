@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { ArrowUpRight, LocateFixed, RefreshCw } from "lucide-react";
+import { ArrowUpRight, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import MapPanel from "../components/MapPanel";
 import TokenQrCard from "../components/TokenQrCard";
@@ -33,15 +33,36 @@ const NgoMap = () => {
   const { items: notifications } = useSelector(
     (state) => state.notificationReducer || { items: [] },
   );
-  const [coords, setCoords] = useState({ lat: "", lng: "" });
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedFood, setSelectedFood] = useState(null);
+  const [selectedFoodId, setSelectedFoodId] = useState(null);
   const [locationMessage, setLocationMessage] = useState("");
+  const coords = useMemo(() => {
+    const profileCoordinates = ngo?.location?.coordinates;
+
+    if (profileCoordinates?.length !== 2) {
+      return { lat: "", lng: "" };
+    }
+
+    return {
+      lat: profileCoordinates[1],
+      lng: profileCoordinates[0],
+    };
+  }, [ngo]);
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       country: "India",
     },
   });
+
+  const selectedFood = useMemo(() => {
+    if (!availableFoods.length) return null;
+
+    return (
+      availableFoods.find(
+        (food) => String(food._id) === String(selectedFoodId),
+      ) || availableFoods[0]
+    );
+  }, [availableFoods, selectedFoodId]);
 
   useEffect(() => {
     dispatch(getUserNgo());
@@ -70,43 +91,18 @@ const NgoMap = () => {
     if (!ngo) {
       return;
     }
+
     const profileCoordinates = ngo.location?.coordinates;
+
     if (profileCoordinates?.length !== 2) {
       return;
     }
 
     const latitude = profileCoordinates[1];
     const longitude = profileCoordinates[0];
-    setCoords({ lat: latitude, lng: longitude });
+
     dispatch(getAvailableFood({ latitude, longitude }));
   }, [dispatch, ngo]);
-
-  useEffect(() => {
-    if (!availableFoods.length) {
-      if (selectedFood) {
-        setSelectedFood(null);
-      }
-      return;
-    }
-
-    if (!selectedFood) {
-      setSelectedFood(availableFoods[0]);
-      return;
-    }
-
-    const nextSelectedFood = availableFoods.find(
-      (food) => String(food._id) === String(selectedFood._id),
-    );
-
-    if (!nextSelectedFood) {
-      setSelectedFood(availableFoods[0]);
-      return;
-    }
-
-    if (nextSelectedFood !== selectedFood) {
-      setSelectedFood(nextSelectedFood);
-    }
-  }, [availableFoods, selectedFood]);
 
   const markers = useMemo(() => {
     const foodMarkers = availableFoods
@@ -120,7 +116,7 @@ const NgoMap = () => {
         imageUrl: food.foodImage?.thumbnail || food.foodImage?.url,
         color: "var(--accent-2)",
         isActive: String(selectedFood?._id) === String(food._id),
-        onClick: () => setSelectedFood(food),
+        onClick: () => setSelectedFoodId(food._id),
       }));
     if (coords.lat && coords.lng) {
       return [
@@ -168,30 +164,6 @@ const NgoMap = () => {
         latitude: Number(coords.lat),
         longitude: Number(coords.lng),
       }),
-    );
-  };
-
-  const handleLocateUser = () => {
-    if (!navigator.geolocation) {
-      setLocationMessage("Live location is not available in this browser.");
-      return;
-    }
-
-    setLocationMessage("Finding your current location...");
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const latitude = Number(position.coords.latitude.toFixed(6));
-        const longitude = Number(position.coords.longitude.toFixed(6));
-        setCoords({ lat: latitude, lng: longitude });
-        setLocationMessage("Using your live location to search nearby food.");
-        await dispatch(getAvailableFood({ latitude, longitude }));
-      },
-      () => {
-        setLocationMessage(
-          "Location access was denied. Using your saved NGO coordinates instead.",
-        );
-      },
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 12000 },
     );
   };
 
@@ -258,10 +230,7 @@ const NgoMap = () => {
     return restaurant._id || "";
   };
 
-  const getRestaurantInfoState = (
-    restaurant,
-    returnTo = "/ngo",
-  ) => ({
+  const getRestaurantInfoState = (restaurant, returnTo = "/ngo") => ({
     restaurant,
     returnTo,
   });
@@ -284,7 +253,7 @@ const NgoMap = () => {
       item.type === "CLAIM_ACCEPTED" ||
       item.type === "CLAIM_CANCELLED" ||
       item.type === "PICKUP_VERIFIED" ||
-      item.type==="CLAIM_CREATED" ||
+      item.type === "CLAIM_CREATED" ||
       item.type === "DELIVERY_VERIFIED",
   );
 
@@ -316,60 +285,50 @@ const NgoMap = () => {
     currentClaimStatus !== "cancelled";
 
   const onSubmit = async (values) => {
-  const payload = {
-    ngoName: values.ngoName,
-    ngoDescription: values.ngoDescription,
-    registrationNumber: values.registrationNumber,
-    capacity: Number(values.capacity),
-    ngoPicture: values.ngoPicture?.[0],
-    address: {
-      street: values.street,
-      area: values.area,
-      landmark: values.landmark,
-      city: values.city,
-      state: values.state,
-      pincode: values.pincode,
-      country: values.country,
-    },
+    const payload = {
+      ngoName: values.ngoName,
+      ngoDescription: values.ngoDescription,
+      registrationNumber: values.registrationNumber,
+      capacity: Number(values.capacity),
+      ngoPicture: values.ngoPicture?.[0],
+      address: {
+        street: values.street,
+        area: values.area,
+        landmark: values.landmark,
+        city: values.city,
+        state: values.state,
+        pincode: values.pincode,
+        country: values.country,
+      },
+    };
+
+    let result;
+
+    if (ngo) {
+      result = await dispatch(updateNgo(payload));
+    } else {
+      result = await dispatch(createNgo(payload));
+    }
+
+    if (result?.meta?.requestStatus === "fulfilled") {
+      setIsEditing(false);
+    }
   };
-
-  let result;
-
-  if (ngo) {
-    result = await dispatch(updateNgo(payload));
-  } else {
-    result = await dispatch(createNgo(payload));
-  }
-
-  if (result?.meta?.requestStatus === "fulfilled") {
-    setIsEditing(false);
-  }
-};
 
   const showForm = !ngo || isEditing;
 
   const mapHeaderActions = (
-    <>
-      <button
-        type="button"
-        onClick={handleLocateUser}
-        className="inline-flex items-center gap-2 rounded-full border border-(--accent-2) bg-white/80 px-4 py-2 text-xs font-semibold text-(--accent-2)"
-      >
-        <LocateFixed className="h-4 w-4" />
-        Locate me
-      </button>
-      <button
-        type="button"
-        onClick={handleRefresh}
-        disabled={foodLoading}
-        className="inline-flex items-center gap-2 rounded-full bg-(--accent-2) px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
-      >
-        <RefreshCw className={`h-4 w-4 ${foodLoading ? "animate-spin" : ""}`} />
-        {foodLoading ? "Refreshing" : "Refresh"}
-      </button>
-    </>
-  );
+    <button
+      type="button"
+      onClick={handleRefresh}
+      disabled={foodLoading}
+      className="inline-flex items-center gap-2 rounded-full bg-(--accent-2) px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+    >
+      <RefreshCw className={`h-4 w-4 ${foodLoading ? "animate-spin" : ""}`} />
 
+      {foodLoading ? "Refreshing" : "Refresh"}
+    </button>
+  );
   const mapLegendItems = [
     { label: "Your NGO base", color: "var(--accent)" },
     { label: "Nearby food pickup", color: "var(--accent-2)" },
@@ -669,62 +628,59 @@ const NgoMap = () => {
               <div className="glass-panel rounded-3xl border border-white/70 p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-display text-xl">Search coordinates</h3>
+                    <h3 className="font-display text-xl">
+                      NGO search location
+                    </h3>
+
                     <p className="mt-1 text-sm text-(--muted)">
-                      Change the search center manually or jump straight to your
-                      live location.
+                      Nearby food listings are automatically fetched using your
+                      NGO profile coordinates.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleLocateUser}
-                    className="inline-flex items-center gap-2 rounded-full border border-(--accent-2) bg-white/80 px-4 py-2 text-xs font-semibold text-(--accent-2) "
-                  >
-                    <LocateFixed className="h-4 w-4" />
-                    Locate
-                  </button>
                 </div>
-                <div className="mt-4 grid gap-3">
-                  <input
-                    type="number"
-                    placeholder="Latitude"
-                    value={coords.lat}
-                    onChange={(event) =>
-                      setCoords((prev) => ({
-                        ...prev,
-                        lat: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Longitude"
-                    value={coords.lng}
-                    onChange={(event) =>
-                      setCoords((prev) => ({
-                        ...prev,
-                        lng: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
-                  />
-                  <button
-                    onClick={handleRefresh}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-(--accent-2) px-5 py-3 text-sm font-semibold text-white"
-                    disabled={foodLoading}
-                  >
-                    <RefreshCw
-                      className={`h-4 w-4 ${foodLoading ? "animate-spin" : ""}`}
-                    />
-                    {foodLoading ? "Refreshing..." : "Refresh available food"}
-                  </button>
+
+                <div className="mt-4 rounded-2xl border border-white/80 bg-white/80 p-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
+                        Latitude
+                      </p>
+
+                      <p className="mt-2 text-sm font-semibold text-(--ink)">
+                        {coords.lat || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
+                        Longitude
+                      </p>
+
+                      <p className="mt-2 text-sm font-semibold text-(--ink)">
+                        {coords.lng || "-"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
+
+                <button
+                  onClick={handleRefresh}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-(--accent-2) px-5 py-3 text-sm font-semibold text-white"
+                  disabled={foodLoading}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${foodLoading ? "animate-spin" : ""}`}
+                  />
+
+                  {foodLoading ? "Refreshing..." : "Refresh available food"}
+                </button>
+
                 {locationMessage && (
                   <p className="mt-3 rounded-2xl bg-white/80 px-4 py-3 text-sm text-(--muted)">
                     {locationMessage}
                   </p>
                 )}
+
                 {foodError && (
                   <p className="mt-3 text-sm text-red-500">{foodError}</p>
                 )}
@@ -871,7 +827,7 @@ const NgoMap = () => {
                         to={`/restaurant-info/${getRestaurantId(selectedFood?.restaurantId)}`}
                         state={getRestaurantInfoState(
                           selectedFood?.restaurantId,
-                          "/ngo"
+                          "/ngo",
                         )}
                         className="inline-flex items-center gap-1 text-xs font-semibold text-(--accent)"
                       >
@@ -903,7 +859,7 @@ const NgoMap = () => {
                   </p>
                 ) : null}
                 {deliveryHandoffNotices.length > 0 && (
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-5 space-y-3  overflow-y-auto max-h-90">
                     <p className="text-xs font-semibold uppercase text-(--muted)">
                       Delivery handoff
                     </p>
@@ -981,7 +937,7 @@ const NgoMap = () => {
               {availableFoods.map((food) => (
                 <div
                   key={food._id}
-                  onClick={() => setSelectedFood(food)}
+                  onClick={() => setSelectedFoodId(food._id)}
                   className={`relative cursor-pointer rounded-3xl border bg-white/80 p-5 transition ${
                     String(selectedFood?._id) === String(food._id)
                       ? "border-(--accent-2) shadow-xl shadow-orange-100"

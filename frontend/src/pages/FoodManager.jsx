@@ -529,7 +529,7 @@ const FoodManager = () => {
                 </button>
               )}
             </div>
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-3 overflow-y-auto max-h-90">
               {claimNotices.map((notice) => (
                 <div
                   key={notice.id}

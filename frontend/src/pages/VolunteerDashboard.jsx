@@ -37,16 +37,13 @@ const VolunteerDashboard = () => {
     error: claimError,
     lastAction,
   } = useSelector((state) => state.claimReducer);
-  const [claimId, setClaimId] = useState("");
-  const [pickupToken, setPickupToken] = useState("");
-  const [deliveryToken, setDeliveryToken] = useState("");
-  const [roomFoodId, setRoomFoodId] = useState("");
-  const [selectedPickup, setSelectedPickup] = useState(null);
-  const [selectedClaim, setSelectedClaim] = useState(null);
+  const [selectedClaimId, setSelectedClaimId] = useState(null);
+  const [selectedPickupId, setSelectedPickupId] = useState(null);
   const [isSharingLocation, setIsSharingLocation] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [scannerMode, setScannerMode] = useState("");
   const [locationMessage, setLocationMessage] = useState("");
+  const [roomJoined, setRoomJoined] = useState(false);
   const watchIdRef = useRef(null);
   const { register, handleSubmit, reset, setValue } = useForm({
     defaultValues: {
@@ -54,6 +51,30 @@ const VolunteerDashboard = () => {
       isAvailable: true,
     },
   });
+  const selectedClaim = useMemo(() => {
+    if (!pendingClaims.length) return null;
+
+    return (
+      pendingClaims.find(
+        (claim) => String(claim._id) === String(selectedClaimId),
+      ) || pendingClaims[0]
+    );
+  }, [pendingClaims, selectedClaimId]);
+
+  const selectedPickup = useMemo(() => {
+    if (!acceptedClaims.length) return null;
+
+    return (
+      acceptedClaims.find(
+        (claim) => String(claim._id) === String(selectedPickupId),
+      ) || null
+    );
+  }, [acceptedClaims, selectedPickupId]);
+
+  const claimId = selectedPickup?._id || selectedClaim?._id || "";
+
+  const roomFoodId =
+    selectedPickup?.foodId?._id || selectedClaim?.foodId?._id || "";
 
   useEffect(() => {
     dispatch(getUserVolunteer());
@@ -68,7 +89,6 @@ const VolunteerDashboard = () => {
         lat: coords[1] || "",
         lng: coords[0] || "",
       });
-      setIsEditing(false);
     }
   }, [reset, volunteer]);
 
@@ -114,77 +134,10 @@ const VolunteerDashboard = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!pendingClaims.length) {
-      if (selectedClaim) {
-        setSelectedClaim(null);
-      }
-      return;
-    }
-
-    if (!selectedClaim) {
-      setSelectedClaim(pendingClaims[0]);
-      return;
-    }
-
-    const nextSelectedClaim = pendingClaims.find(
-      (claimItem) => String(claimItem._id) === String(selectedClaim._id),
-    );
-
-    if (!nextSelectedClaim) {
-      setSelectedClaim(pendingClaims[0]);
-      return;
-    }
-
-    if (nextSelectedClaim !== selectedClaim) {
-      setSelectedClaim(nextSelectedClaim);
-    }
-  }, [pendingClaims, selectedClaim]);
-
-  useEffect(() => {
-    if (!selectedClaim) return;
-
-    setClaimId(selectedClaim._id || "");
-    setRoomFoodId(selectedClaim.foodId?._id || "");
-  }, [selectedClaim]);
-
-  useEffect(() => {
-    if (!selectedPickup) return;
-
-    const activeClaim = acceptedClaims.find(
-      (claimItem) => String(claimItem._id) === String(selectedPickup._id),
-    );
-
-    if (
-      !activeClaim ||
-      !["accepted", "picked_up"].includes(activeClaim.status)
-    ) {
-      setSelectedPickup(null);
-      setClaimId("");
-      setRoomFoodId("");
-    }
-  }, [acceptedClaims, selectedPickup]);
-
   const handleSelectAcceptedClaim = (claimItem) => {
-    if (!claimItem) {
-      return;
-    }
+    if (!claimItem?._id) return;
 
-    setSelectedPickup(claimItem);
-    setClaimId(claimItem._id || "");
-    setRoomFoodId(claimItem.foodId?._id || "");
-  };
-
-  const handleScanToken = (token) => {
-    if (!token) {
-      return;
-    }
-
-    if (scannerMode === "pickup") {
-      setPickupToken(token);
-    } else if (scannerMode === "delivery") {
-      setDeliveryToken(token);
-    }
+    setSelectedPickupId(claimItem._id);
   };
 
   const markers = useMemo(() => {
@@ -225,7 +178,7 @@ const VolunteerDashboard = () => {
           claimItem.foodId.foodImage?.url,
         color: "var(--accent)",
         isActive: String(selectedClaim?._id) === String(claimItem._id),
-        onClick: () => setSelectedClaim(claimItem),
+        onClick: () => setSelectedClaimId(claimItem._id),
       }));
 
     if (volunteerCoordinates.length === 2) {
@@ -379,13 +332,8 @@ const VolunteerDashboard = () => {
     const result = await dispatch(acceptClaim(claimItem._id));
     if (result?.meta?.requestStatus === "fulfilled") {
       const acceptedFoodId = claimItem.foodId?._id || "";
-      setSelectedPickup({
-        ...claimItem,
-        status: "accepted",
-      });
-      setSelectedClaim(null);
-      setClaimId(claimItem._id || "");
-      setRoomFoodId(acceptedFoodId);
+      setSelectedPickupId(claimItem._id);
+      setSelectedClaimId(null);
       if (acceptedFoodId) {
         joinRoom(acceptedFoodId);
         dispatch(setActiveRoom(acceptedFoodId));
@@ -482,31 +430,55 @@ const VolunteerDashboard = () => {
     { label: "Pending pickup", color: "var(--accent)" },
   ];
 
-  const handlePickupVerify = async () => {
-    const result = await dispatch(verifyPickup({ claimId, pickupToken }));
-    if (result?.meta?.requestStatus === "fulfilled") {
-      setPickupToken("");
-      await dispatch(getVolunteerAcceptedClaims());
-      handleStartLiveSharing();
+  const handleScanToken = async (token) => {
+    if (!token || !claimId) {
+      return;
     }
-  };
 
-  const handleDeliveryVerify = async () => {
-    const result = await dispatch(verifyDelivery({ claimId, deliveryToken }));
-    if (result?.meta?.requestStatus === "fulfilled") {
-      setDeliveryToken("");
-      await dispatch(getVolunteerAcceptedClaims());
+    try {
+      if (scannerMode === "pickup") {
+        const result = await dispatch(
+          verifyPickup({
+            claimId,
+            pickupToken: token,
+          }),
+        );
+
+        if (result?.meta?.requestStatus === "fulfilled") {
+          await dispatch(getVolunteerAcceptedClaims());
+          handleStartLiveSharing();
+
+          setLocationMessage("Pickup verified successfully.");
+        }
+      }
+
+      if (scannerMode === "delivery") {
+        const result = await dispatch(
+          verifyDelivery({
+            claimId,
+            deliveryToken: token,
+          }),
+        );
+
+        if (result?.meta?.requestStatus === "fulfilled") {
+          await dispatch(getVolunteerAcceptedClaims());
+
+          handleLeaveRoom();
+          setSelectedPickupId(null);
+
+          setLocationMessage("Delivery verified successfully.");
+        }
+      }
+    } finally {
+      setScannerMode("");
     }
-    setSelectedPickup(null);
-    setClaimId("");
-    setRoomFoodId("");
-    setLocationMessage("Delivery verification completed.");
   };
 
   const handleJoinRoom = () => {
     if (!roomFoodId) return;
     joinRoom(roomFoodId);
     dispatch(setActiveRoom(roomFoodId));
+    setRoomJoined(true);
   };
 
   const handleLeaveRoom = () => {
@@ -515,6 +487,7 @@ const VolunteerDashboard = () => {
     dispatch(clearRoomLocations(roomFoodId));
     dispatch(setActiveRoom(null));
     handleStopLiveSharing();
+    setRoomJoined(false);
   };
 
   const handleSendLocation = () => {
@@ -530,7 +503,14 @@ const VolunteerDashboard = () => {
     });
   };
 
+  const getFoodId = (foodId) =>
+    typeof foodId === "object" ? foodId?._id : foodId;
+
   const handleStartLiveSharing = (nextFoodId) => {
+    if (typeof nextFoodId === "object" && nextFoodId?.target) {
+      nextFoodId = null;
+    }
+
     const targetFoodId = nextFoodId || roomFoodId;
 
     if (!targetFoodId || !navigator.geolocation) {
@@ -542,12 +522,11 @@ const VolunteerDashboard = () => {
       watchIdRef.current = null;
     }
 
-    if (roomFoodId !== targetFoodId) {
-      setRoomFoodId(targetFoodId);
-    }
-
     joinRoom(targetFoodId);
+
     dispatch(setActiveRoom(targetFoodId));
+
+    setRoomJoined(true);
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
@@ -559,14 +538,19 @@ const VolunteerDashboard = () => {
         });
       },
       () => {},
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 10000,
+      },
     );
+
     setIsSharingLocation(true);
+
     setLocationMessage(
       "Sharing your live location with the restaurant and NGO.",
     );
   };
-
   const handleStopLiveSharing = () => {
     if (watchIdRef.current !== null && navigator.geolocation) {
       navigator.geolocation.clearWatch(watchIdRef.current);
@@ -598,11 +582,14 @@ const VolunteerDashboard = () => {
       vehicleType: values.vehicleType,
       isAvailable: values.isAvailable,
     };
-
+    let result;
     if (volunteer) {
-      await dispatch(updateVolunteer(payload));
+      result = await dispatch(updateVolunteer(payload));
     } else {
-      await dispatch(createVolunteer(payload));
+      result = await dispatch(createVolunteer(payload));
+    }
+    if (result?.meta?.requestStatus === "fulfilled") {
+      setIsEditing(false);
     }
   };
 
@@ -723,7 +710,6 @@ const VolunteerDashboard = () => {
                     into the route.
                   </p>
                 </div>
-                {/* refresh button for nearby claims */}
                 <button
                   type="button"
                   onClick={refreshNearbyFood}
@@ -808,14 +794,14 @@ const VolunteerDashboard = () => {
                         state={getRestaurantInfoState(
                           selectedFood.restaurantId,
                         )}
-                        className="inline-flex items-center justify-center rounded-full border border-(--accent) px-4 py-3 text-sm font-semibold text-(--accent)"
+                        className="inline-flex items-center justify-center rounded-full border border-(--accent) px-2 py-2 text-sm font-semibold text-(--accent)"
                       >
                         Restaurant info
                       </Link>
                     ) : null}
                     <Link
                       to={`/volunteer/route/${selectedFood._id}`}
-                      className="inline-flex items-center justify-center rounded-full border border-(--accent-2) px-4 py-3 text-sm font-semibold text-(--accent-2)"
+                      className="inline-flex items-center justify-center rounded-full border border-(--accent-2) px-2 py-2 text-sm font-semibold text-(--accent-2)"
                     >
                       Show route
                     </Link>
@@ -823,7 +809,7 @@ const VolunteerDashboard = () => {
                       type="button"
                       onClick={() => handleAccept(selectedClaim)}
                       disabled={claimLoading || !selectedClaim?._id}
-                      className="rounded-full bg-(--accent) px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                      className="rounded-full bg-(--accent) px-1 py-2 text-sm font-semibold text-white disabled:opacity-60"
                     >
                       {selectedClaim?._id
                         ? "Accept pickup"
@@ -849,11 +835,10 @@ const VolunteerDashboard = () => {
 
           <div className="glass-panel rounded-3xl border border-white/70 p-6">
             <h3 className="font-display text-xl">Delivery workflow</h3>
-            {/* add remove selected pickup button */}
             {selectedPickup && (
               <button
                 type="button"
-                onClick={() => setSelectedPickup(null)}
+                onClick={() => setSelectedPickupId(null)}
                 className="rounded-full right-4 top-4 absolute bg-red-500 px-4 py-2 text-sm font-semibold text-white"
               >
                 Remove selected pickup
@@ -880,70 +865,42 @@ const VolunteerDashboard = () => {
                 </div>
 
                 <div className="mt-4 space-y-4">
-                  {/* Pickup */}
-                  <div className="space-y-3 rounded-3xl border border-white/80 bg-white/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-(--ink)">
-                        Pickup token
-                      </p>
+                  <div className="mt-4 space-y-4">
+                    {/* Pickup */}
+                    <div className="space-y-3 rounded-3xl border border-white/80 bg-white/70 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-(--ink)">
+                          Pickup verification
+                        </p>
 
-                      <button
-                        type="button"
-                        onClick={() => setScannerMode("pickup")}
-                        className="rounded-full border border-(--accent-2)q px-4 py-2 text-xs font-semibold text-(--accent-2)"
-                      >
-                        Scan pickup QR
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => setScannerMode("pickup")}
+                          disabled={claimLoading}
+                          className="rounded-full border border-(--accent-2) px-4 py-2 text-xs font-semibold text-(--accent-2)"
+                        >
+                          Scan pickup QR
+                        </button>
+                      </div>
                     </div>
 
-                    <input
-                      type="text"
-                      placeholder="Pickup token"
-                      value={pickupToken}
-                      onChange={(e) => setPickupToken(e.target.value)}
-                      className="w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
-                    />
+                    {/* Delivery */}
+                    <div className="space-y-3 rounded-3xl border border-white/80 bg-white/70 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-(--ink)">
+                          Delivery verification
+                        </p>
 
-                    <button
-                      onClick={handlePickupVerify}
-                      disabled={claimLoading || !claimId || !pickupToken}
-                      className="w-full rounded-full bg-(--accent-2) px-4 py-2 text-sm font-semibold text-white"
-                    >
-                      Verify pickup
-                    </button>
-                  </div>
-
-                  {/* Delivery */}
-                  <div className="space-y-3 rounded-3xl border border-white/80 bg-white/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-(--ink)">
-                        Delivery token
-                      </p>
-
-                      <button
-                        type="button"
-                        onClick={() => setScannerMode("delivery")}
-                        className="rounded-full border border-(--accent) px-4 py-2 text-xs font-semibold text-(--accent)"
-                      >
-                        Scan delivery QR
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => setScannerMode("delivery")}
+                          disabled={claimLoading}
+                          className="rounded-full border border-(--accent) px-4 py-2 text-xs font-semibold text-(--accent)"
+                        >
+                          Scan delivery QR
+                        </button>
+                      </div>
                     </div>
-
-                    <input
-                      type="text"
-                      placeholder="Delivery token"
-                      value={deliveryToken}
-                      onChange={(e) => setDeliveryToken(e.target.value)}
-                      className="w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
-                    />
-
-                    <button
-                      onClick={handleDeliveryVerify}
-                      disabled={claimLoading || !claimId || !deliveryToken}
-                      className="w-full rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white"
-                    >
-                      Verify delivery
-                    </button>
                   </div>
                 </div>
               </>
@@ -1017,10 +974,8 @@ const VolunteerDashboard = () => {
                       <Link
                         to={`/volunteer/route/${notice.foodId}`}
                         onClick={() => {
-                          setSelectedClaim(notice.claimItem);
-                          setSelectedPickup(notice.claimItem);
-                          setClaimId(notice.claimId || "");
-                          setRoomFoodId(notice.foodId || "");
+                          setSelectedClaimId(notice.claimItem._id);
+                          setSelectedPickupId(notice.claimItem._id);
                         }}
                         className="rounded-full border border-(--accent-2) px-4 py-2 text-xs font-semibold text-(--accent-2)"
                       >
@@ -1130,7 +1085,7 @@ const VolunteerDashboard = () => {
                           type="button"
                           onClick={() => {
                             handleSelectAcceptedClaim(notice.claimItem);
-                            handleStartLiveSharing(notice.foodId);
+                            handleStartLiveSharing(getFoodId(notice.foodId));
                           }}
                           className="rounded-full bg-(--accent-2)]px-4 py-2 text-xs font-semibold text-white"
                         >
@@ -1169,54 +1124,70 @@ const VolunteerDashboard = () => {
             />
             <div className="glass-panel rounded-3xl border border-white/70 p-6">
               <h3 className="font-display text-xl">Live tracking controls</h3>
-              <div className="mt-4 space-y-3">
-                <div className="w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3">
-                  {roomFoodId}
+              {selectedPickup ? (
+                <div className="mt-4 space-y-3">
+                  <div className="w-full rounded-2xl border border-white/70 bg-white/80  py-3">
+                    <p className="text-sm font-semibold text-(--ink)">
+                      roomID: {roomFoodId}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {roomJoined ? (
+                      <button
+                        onClick={handleLeaveRoom}
+                        className="rounded-full border border-(--accent-2) px-4 py-2 text-sm font-semibold text-(--accent-2)"
+                      >
+                        Leave room
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleJoinRoom}
+                        className="rounded-full bg-(--accent-2) px-4 py-2 text-sm font-semibold text-white"
+                      >
+                        Join room
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {!isSharingLocation && (
+                      <button
+                        onClick={() => handleStartLiveSharing()}
+                        disabled={!roomFoodId || isSharingLocation}
+                        className="rounded-full bg-(--accent-2) px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      >
+                        Start live sharing
+                      </button>
+                    )}
+                    {isSharingLocation && (
+                      <button
+                        onClick={handleStopLiveSharing}
+                        disabled={!isSharingLocation}
+                        className="rounded-full border border-red-400 px-4 py-2 text-sm font-semibold text-red-500 disabled:opacity-50"
+                      >
+                        Stop sharing
+                      </button>
+                    )}
+                    <button
+                      onClick={handleSendLocation}
+                      className="w-full rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      Send my location
+                    </button>
+                  </div>
+                  <p className="text-xs font-semibold text-(--muted)">
+                    Live sharing: {isSharingLocation ? "On" : "Off"}
+                  </p>
+                  <p className="text-xs text-(--muted)">
+                    Live sharing starts as soon as you accept a pickup. Keep
+                    this page open while you travel.
+                  </p>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={handleJoinRoom}
-                    className="rounded-full bg-(--accent-2) px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    Join room
-                  </button>
-                  <button
-                    onClick={handleLeaveRoom}
-                    className="rounded-full border border-(--accent-2) px-4 py-2 text-sm font-semibold text-(--accent-2)"
-                  >
-                    Leave room
-                  </button>
-                </div>
-                <button
-                  onClick={handleSendLocation}
-                  className="w-full rounded-full bg-(--accent) px-4 py-2 text-sm font-semibold text-white"
-                >
-                  Send my location
-                </button>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <button
-                    onClick={handleStartLiveSharing}
-                    disabled={!roomFoodId || isSharingLocation}
-                    className="rounded-full bg-(--accent-2) px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                  >
-                    Start live sharing
-                  </button>
-                  <button
-                    onClick={handleStopLiveSharing}
-                    disabled={!isSharingLocation}
-                    className="rounded-full border border-red-400 px-4 py-2 text-sm font-semibold text-red-500 disabled:opacity-50"
-                  >
-                    Stop sharing
-                  </button>
-                </div>
-                <p className="text-xs font-semibold text-(--muted)">
-                  Live sharing: {isSharingLocation ? "On" : "Off"}
+              ) : (
+                <p className="mt-4 text-sm text-(--muted)">
+                  Select an accepted claim to enable live route tracking and
+                  controls.
                 </p>
-                <p className="text-xs text-(--muted)">
-                  Live sharing starts as soon as you accept a pickup. Keep this
-                  page open while you travel.
-                </p>
-              </div>
+              )}
             </div>
           </div>
 
@@ -1259,14 +1230,11 @@ const VolunteerDashboard = () => {
             }
             description={
               scannerMode === "delivery"
-                ? "Scan the NGO delivery QR code to fill the delivery token."
-                : "Scan the restaurant pickup QR code to fill the pickup token."
+                ? "Scan NGO QR to complete delivery."
+                : "Scan restaurant QR to verify pickup."
             }
             onClose={() => setScannerMode("")}
-            onScan={(token) => {
-              handleScanToken(token);
-              setScannerMode("");
-            }}
+            onScan={handleScanToken}
           />
         </>
       )}

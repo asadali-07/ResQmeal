@@ -118,7 +118,7 @@ const RestaurantClaims = () => {
                     </div>
                 </div>
 
-                {pickupNotice?.pickupToken ? (
+                {claimItem.status === "accepted" && pickupNotice?.pickupToken ? (
                     <div className="mt-4">
                         <TokenQrCard
                             title="Pickup token"

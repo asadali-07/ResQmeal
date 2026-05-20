@@ -213,6 +213,7 @@ const Account = () => {
               <label className="text-sm font-semibold">Name</label>
               <input
                 type="text"
+                value={userInfo.name || ""}
                 {...register("name", { required: true })}
                 className="mt-2 w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
               />
@@ -230,6 +231,7 @@ const Account = () => {
               <label className="text-sm font-semibold">Phone</label>
               <input
                 type="text"
+                value={userInfo.phone || ""}
                 {...register("phone", { required: true })}
                 className="mt-2 w-full rounded-2xl border border-white/70 bg-white/80 px-4 py-3"
               />
