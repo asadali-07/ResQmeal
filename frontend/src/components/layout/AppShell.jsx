@@ -60,19 +60,31 @@ const AppShell = ({ children }) => {
     if (role === "restaurant") {
       navItems.push({ to: "/restaurant/food", label: "Food", icon: Package });
       navItems.push({ to: "/restaurant/claims", label: "Claims", icon: Bell });
-      navItems.push({ to: "/messages", label: "Messages", icon: MessageSquare });
+      navItems.push({
+        to: "/messages",
+        label: "Messages",
+        icon: MessageSquare,
+      });
     }
     if (role === "ngo") {
       navItems.push({ to: "/ngo", label: "NGO Map", icon: HandHeart });
       navItems.push({ to: "/ngo/claims", label: "Claims", icon: Package });
-      navItems.push({ to: "/messages", label: "Messages", icon: MessageSquare });
+      navItems.push({
+        to: "/messages",
+        label: "Messages",
+        icon: MessageSquare,
+      });
     }
     if (role === "volunteer") {
       navItems.push({ to: "/volunteer", label: "Volunteer", icon: Truck });
-      navItems.push({ to: "/messages", label: "Messages", icon: MessageSquare });
+      navItems.push({
+        to: "/messages",
+        label: "Messages",
+        icon: MessageSquare,
+      });
     }
     if (role === "admin") {
-      navItems.push({ to: "/dashboard", label: "Admin Dashboard", icon:  Lock });
+      navItems.push({ to: "/dashboard", label: "Admin Dashboard", icon: Lock });
     }
     navItems.push({ to: "/account", label: "Account", icon: UserCircle });
   }
@@ -117,8 +129,12 @@ const AppShell = ({ children }) => {
         <header className="sticky top-0 z-50 border-b border-white/60 bg-white/70 backdrop-blur">
           <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 lg:px-6">
             <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-(--accent) text-white shadow-lg shadow-orange-200">
-                <MapPinned className="h-5 w-5" />
+              <div className="grid h-13 w-13 place-items-center">
+                <img
+                  src="/logo.png"
+                  alt="ResQmeal Logo"
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div>
                 <p className="font-display text-xl">ResQmeal</p>
