@@ -32,7 +32,8 @@ async function createTransporter() {
 
     transporter.verify((error, success) => {
       if (error) {
-        console.error("Error connecting to email server:", error);
+        console.error("Error verifying transporter:", error);
+        throw new Error("Error verifying transporter: " + error.message);
       } else {
         console.log("Email server is ready to send messages ✅");
       }
@@ -41,6 +42,7 @@ async function createTransporter() {
     return transporter;
   } catch (error) {
     console.error("Error creating transporter:", error);
+    throw new Error("Error creating transporter: " + error.message);
   }
 }
 
@@ -59,6 +61,7 @@ async function sendEmail(to, subject, text, html) {
     console.log("Message sent:", info.messageId);
   } catch (error) {
     console.error("Error sending email:", error);
+    throw new Error("Error sending email: " + error.message);
   }
 }
 
