@@ -4,6 +4,7 @@ const { uploadImage } = require("../services/imagekit.service")
 const { sendEmail } = require("../services/email.service")
 const { redis } = require("../db/redis")
 const bcrypt = require('bcryptjs')
+const crypto = require('crypto')
 
 
 async function registerController(req, res) {
@@ -408,7 +409,255 @@ async function getUserController(req, res) {
   }
 }
 
+async function forgotPasswordController(req, res) {
+  try {
+    const { email } = req.body
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" })
+    }
+    const user = await userModel.findOne({ email })
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+    await redis.setex(`reset:${hashedResetToken}`, 900, user._id.toString())
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body style="
+  margin:0;
+  padding:0;
+  background:#f4f7fb;
+  font-family:Arial, Helvetica, sans-serif;
+">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+    <tr>
+      <td align="center">
+
+        <table width="600" cellpadding="0" cellspacing="0" style="
+          background:#ffffff;
+          border-radius:32px;
+          overflow:hidden;
+          box-shadow:0 20px 60px rgba(15,23,42,0.12);
+        ">
+
+          <!-- Header -->
+          <tr>
+            <td style="
+              background:linear-gradient(135deg,#f97316,#fb923c,#fdba74);
+              padding:50px 40px;
+              text-align:center;
+            ">
+
+              <div style="
+                width:90px;
+                height:90px;
+                background:rgba(255,255,255,0.18);
+                border:2px solid rgba(255,255,255,0.3);
+                border-radius:28px;
+                margin:auto;
+                line-height:90px;
+                font-size:42px;
+              ">
+                🔐
+              </div>
+
+              <h1 style="
+                margin:24px 0 10px;
+                color:white;
+                font-size:36px;
+                font-weight:700;
+              ">
+                ResQMeal
+              </h1>
+
+              <p style="
+                margin:0;
+                color:rgba(255,255,255,0.92);
+                font-size:16px;
+              ">
+                Secure Password Recovery
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding:50px 40px;">
+
+              <h2 style="
+                margin:0;
+                color:#0f172a;
+                font-size:28px;
+                text-align:center;
+              ">
+                Reset Your Password
+              </h2>
+
+              <p style="
+                margin:20px 0;
+                color:#64748b;
+                font-size:16px;
+                line-height:1.8;
+                text-align:center;
+              ">
+                We received a request to reset the password associated
+                with your ResQMeal account.
+              </p>
+
+              <div style="
+                background:linear-gradient(135deg,#fff7ed,#ffedd5);
+                border:2px dashed #fb923c;
+                border-radius:28px;
+                padding:35px;
+                text-align:center;
+                margin:35px 0;
+              ">
+
+                <p style="
+                  margin:0 0 24px;
+                  color:#9a3412;
+                  font-size:15px;
+                ">
+                  Click the button below to create a new password.
+                </p>
+
+                <a
+                  href="${resetLink}"
+                  target="_blank"
+                  style="
+                    display:inline-block;
+                    background:#ea580c;
+                    color:#ffffff;
+                    text-decoration:none;
+                    padding:16px 36px;
+                    border-radius:14px;
+                    font-size:16px;
+                    font-weight:700;
+                  "
+                >
+                  Reset Password
+                </a>
+
+              </div>
+
+              <p style="font-size:13px;color:#94a3b8;word-break:break-all;">
+         If the button doesn't work, copy and paste this link into your browser:
+         <br />
+       ${resetLink}
+       </p>
+
+              <div style="
+                background:#f8fafc;
+                border-radius:20px;
+                padding:18px;
+                text-align:center;
+              ">
+                <p style="
+                  margin:0;
+                  color:#334155;
+                  font-size:15px;
+                  line-height:1.7;
+                ">
+                  ⏳ This reset link will expire in
+                  <span style="
+                    color:#dc2626;
+                    font-weight:700;
+                  ">
+                    15 minutes
+                  </span>.
+                </p>
+              </div>
+
+              <p style="
+                margin-top:30px;
+                color:#94a3b8;
+                font-size:14px;
+                line-height:1.8;
+                text-align:center;
+              ">
+                If you didn't request a password reset, you can safely
+                ignore this email. Your password will remain unchanged.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="
+              padding:30px;
+              text-align:center;
+              border-top:1px solid #e2e8f0;
+              background:#fafafa;
+            ">
+              <p style="
+                margin:0;
+                color:#94a3b8;
+                font-size:13px;
+              ">
+                © ${new Date().getFullYear()} ResQMeal • Turning leftovers into hope
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+`;
+
+    await sendEmail(
+      user.email,
+      "Password Reset Request",
+      "You have requested a password reset. Click the link below to reset your password.",
+      html
+    )
+
+    return res.status(200).json({
+      message: "Password reset link sent to the registered email address"
+    })
+  } catch (error) {
+    res.status(500).json({ message: "Error in sending password reset link", error: error.message })
+  }
+}
+
+async function resetPasswordController(req, res) {
+  try {
+    const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ message: "Token and new password are required" })
+    }
+    const hashedResetToken = crypto.createHash('sha256').update(token).digest('hex')
+    const userId = await redis.get(`reset:${hashedResetToken}`)
+    if (!userId) {
+      return res.status(400).json({ message: "Invalid or expired token" })
+    }
+    const hashedPassword = await bcrypt.hash(password, 10)
+    await userModel.findByIdAndUpdate(userId, { password: hashedPassword })
+    await redis.del(`reset:${hashedResetToken}`)
+    return res.status(200).json({
+      message: "Password reset successfully"
+    })
+  } catch (error) {
+    res.status(500).json({ message: "Error in resetting password", error: error.message })
+  }
+}
 
 module.exports = {
-  registerController, loginController, logoutController, getUserController, updateProfileController, sendOTPController, verifyOTPController
+  registerController, loginController, logoutController, getUserController, updateProfileController, sendOTPController, verifyOTPController, forgotPasswordController, resetPasswordController
 }

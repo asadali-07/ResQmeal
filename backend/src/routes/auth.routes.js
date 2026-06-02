@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerController, loginController,logoutController,getUserController, updateProfileController, sendOTPController, verifyOTPController} = require('../controllers/auth.controller');
+const { registerController, loginController,logoutController,getUserController, updateProfileController, sendOTPController, verifyOTPController, forgotPasswordController, resetPasswordController} = require('../controllers/auth.controller');
 const {createAuthMiddleware} = require('../middlewares/auth.middleware')
 const multer = require("multer");
 const { upload } = require('../middlewares/multer.middleware');
@@ -17,5 +17,7 @@ authRouter.post('/register',registerController)
     .patch('/update-profile',upload.single('profileImage'),createAuthMiddleware(["restaurant", "ngo", "volunteer", "admin"]), updateProfileController)
     .get('/send-otp',createAuthMiddleware(["restaurant", "ngo", "volunteer", "admin"]), sendOTPController)
     .post('/verify-otp',createAuthMiddleware(["restaurant", "ngo", "volunteer", "admin"]), verifyOTPController)
+    .post('/forgot-password',forgotPasswordController)
+    .post('/reset-password', resetPasswordController);
 
 module.exports = authRouter;

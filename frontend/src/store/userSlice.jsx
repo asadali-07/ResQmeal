@@ -193,7 +193,7 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
     "user/logoutUser",
-    async (_, { rejectWithValue, dispatch }) => {
+    async (_, { rejectWithValue }) => {
         try {
             await api.get("/auth/logout");
             disconnectSocket();
@@ -251,6 +251,48 @@ export const verifyOtp = createAsyncThunk(
             return rejectWithValue(getErrorMessage(error, "Failed to verify OTP"));
         }
     }
+);
+
+export const forgotPassword = createAsyncThunk(
+    "user/forgotPassword",
+    async (email, { rejectWithValue }) => {
+        try {
+            const response = await api.post("/auth/forgot-password", { email });
+            toast.success(response.data.message || "Password reset link sent successfully");
+            return response.data.message;
+        } catch (error) {
+            return rejectWithValue(getErrorMessage(error, "Failed to send password reset link"));
+        }
+    }
+);
+
+export const resetPassword = createAsyncThunk(
+  "user/resetPassword",
+  async ({ token, password }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        "/auth/reset-password",
+        {
+          token,
+          password,
+        }
+      );
+
+      toast.success(
+        response.data.message ||
+          "Password updated successfully"
+      );
+
+      return response.data.message;
+    } catch (error) {
+      return rejectWithValue(
+        getErrorMessage(
+          error,
+          "Failed to reset password"
+        )
+      );
+    }
+  }
 );
 
 export const getUserInfo = createAsyncThunk(
@@ -362,6 +404,28 @@ const userSlice = createSlice({
                 state.verifying = false;
                 state.error = action.payload || "Failed to verify OTP";
             })
+            .addCase(forgotPassword.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(forgotPassword.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(forgotPassword.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || "Failed to send password reset link";
+            })
+            .addCase(resetPassword.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(resetPassword.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(resetPassword.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || "Failed to reset password";
+            })
             .addCase(getUserInfo.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -371,9 +435,8 @@ const userSlice = createSlice({
                 state.userInfo = action.payload;
                 state.isAuthenticated = true;
             })
-            .addCase(getUserInfo.rejected, (state, action) => {
+            .addCase(getUserInfo.rejected, (state) => {
                 state.loading = false;
-                state.error = action.payload || "Failed to fetch user info";
             })
     }
 });

@@ -25,6 +25,8 @@ const NgoInfo = lazy(() => import("../pages/NgoInfo"));
 const VolunteerInfo = lazy(() => import("../pages/VolunteerInfo"));
 const LeaderBoard = lazy(() => import("../pages/LeaderBoard"));
 const AdminDashboard = lazy(() => import("../pages/AdminDashboard"));
+const ForgetPassword = lazy(() => import("../pages/ForgetPassword"));
+const SetNewPassword = lazy(() => import("../pages/SetNewPassword"));
 
 const AppRoutes = () => {
   return (
@@ -63,6 +65,8 @@ const AppRoutes = () => {
         <Route path="/messages" element={<Messages />} />
         <Route path="/leaderboard" element={<LeaderBoard />} />
         <Route path="/dashboard" element={<AdminDashboard />} />
+        <Route path="/forgot-password" element={<ForgetPassword />} />  
+        <Route path="/reset-password/:token" element={<SetNewPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
